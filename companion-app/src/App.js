@@ -230,12 +230,18 @@ class DumpsListLoader extends React.Component {
 }
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  uploadFile = (evt) => {
+    const file = evt.target.files[0];
+    const name = file.name;
+
+    Storage.put(name, file).then(() => {
+      this.setState({ file: name });
+    })
   }
 
   render() {
     return (
+      /*
       <Router>
         <Grid padded>
           <Grid.Column>
@@ -247,11 +253,16 @@ class App extends Component {
             } />
 
             <Route path="/dumps/:dumpId" render = {
-              props => <DumpDetailsLoader id={props.match.params.dumpId} />
+              (props) => <DumpDetailsLoader id={props.match.params.dumpId} />
             } />
           </Grid.Column>
         </Grid>
       </Router>
+      */
+     <div className="App">
+      <p>Upload a file</p>
+      <input type="file" onChange={this.uploadFile} />
+     </div>
     );
   }
 }
