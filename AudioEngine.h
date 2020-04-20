@@ -34,9 +34,14 @@ public:
 	typedef map<int, FMOD::Channel*> _ChannelMap;
 	typedef map<string, _ChannelMap> _ChannelDirectory; //left: System the ChannelMap is set to
 													    //right: Map of channels for a given system
+
+	typedef multimap<string, FMOD::DSP*> _dspMap; //Container for DSP effects in a system
+												  //Distinguish between the DSP effects by searching with DSP::getType
+
 	_SystemMap _mSystems;
 	_ChannelDirectory _dChannels;
 	_SoundDirectory _dSounds;
+	_dspMap _mDSP;
 	
 protected:
 	FMOD_Handler();
@@ -56,7 +61,7 @@ class audioEngine
 public:
 	static void init();
 	static void update();
-	static int errorCheck(FMOD_RESULT result);
+	static bool errorCheck(FMOD_RESULT result); //returns true on FMOD_OK, and false otherwise
 	static void addSystem(string systemID);
 	static void removeSystem(string systemID);
 
@@ -64,7 +69,7 @@ public:
 	void unloadSound(string systemID, const string& strSoundName);
 	int aePlaySound(string systemID, const string& strSoundName, FMOD_VECTOR vec3 = FMOD_VECTOR{ 0, 0, 0 }, float fVolumedB = 0.0f); //Distinct from FMOD_Channel's playSound
 	void unloadChannel(string systemID, int channelID); //Can also be used to preemptively stop sound from a channel
-	void unloadAllChannels(string systemID); //Unload channels in a GIVEN system, not in ALL systems
+	void unloadAllChannelsInSystem(string systemID); //Unload channels in a GIVEN system, not in ALL systems
 	void togglePauseOnChannel(string systemID, int channelID);
 	void setChannelVolume(string systemID, int channelID, float fVolumedB);
 	bool aeIsPlaying(string systemID, int channelID) const; //distinct from FMOD_Channel's isPlaying
@@ -76,7 +81,19 @@ public:
 class dspEngine
 {
 public:
+	void addDSPEffect(string systemID, FMOD_DSP_TYPE dspType); //Cannot have more than one of the same effect
+	void toggleDSPEffect(string systemID, FMOD_DSP_TYPE dspType);
+	void stopAllDSPEffectsInSystem(string systemID);
+	void removeDSPEffect(string systemID, FMOD_DSP_TYPE dspType);
+	void removeAllDSPEffectsInSystem(string systemID);
 
+
+private:
+	inline bool checkIndex(int index, int limit);
+		//Checks to see if DSP parameter is in-bounds. 
+
+	bool checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput = NULL);
+		//Optionally reference an FMOD::DSP if you want to output the DSP that corresponds to dspType in system systemID.
 };
 
 #endif

@@ -129,14 +129,14 @@ void audioEngine::removeSystem(string systemID)
 	inst->removeSystem(systemID);
 }
 
-int audioEngine::errorCheck(FMOD_RESULT result)
+bool audioEngine::errorCheck(FMOD_RESULT result)
 {
 	if (result != FMOD_OK)
 	{
 		cout << "FMOD error: " << result << endl;
-		return 1;
+		return 0;
 	}
-	return 0;
+	return 1;
 }
 
 //TODO (Brandon): Handle potential out-of-range exceptions from map.at
@@ -233,7 +233,7 @@ void audioEngine::unloadChannel(string systemID, int channelID)
 	}
 }
 
-void audioEngine::unloadAllChannels(string systemID)
+void audioEngine::unloadAllChannelsInSystem(string systemID)
 {
 	auto inst = FMOD_Handler::instance();
 	vector<FMOD_Handler::_ChannelMap::iterator> channelsToFree;
@@ -299,6 +299,159 @@ float audioEngine::volumeTodb(float fVolumeLinear)
 	return 20.0f * log10f(fVolumeLinear);
 }
 
+void dspEngine::addDSPEffect(string systemID, FMOD_DSP_TYPE dspType)
+{
+	auto test = FMOD_Handler::instance();
+	if(!checkDSPInSystem(systemID, dspType))
+	{
+		auto inst = FMOD_Handler::instance();
+		auto systemsIt = inst->_mSystems.find(systemID);
+		if (systemsIt != inst->_mSystems.end())
+		{
+			FMOD::DSP *dsp;
+			FMOD::ChannelGroup *master;
+
+			if (audioEngine::errorCheck(systemsIt->second->createDSPByType(dspType, &dsp)) &&
+				audioEngine::errorCheck(systemsIt->second->getMasterChannelGroup(&master)))
+			{
+				if (audioEngine::errorCheck(master->addDSP(0, dsp)))
+				{
+					inst->_mDSP.insert(pair<string, FMOD::DSP*>(systemID, dsp));
+				}
+			}
+		}
+	}
+}
+
+void dspEngine::toggleDSPEffect(string systemID, FMOD_DSP_TYPE dspType)
+{
+	auto inst = FMOD_Handler::instance();
+	FMOD::DSP *targetDSP;
+
+	if (checkDSPInSystem(systemID, dspType, &targetDSP))
+	{
+		bool toggle;
+		if (audioEngine::errorCheck(targetDSP->getBypass(&toggle)))
+		{
+			targetDSP->setBypass(!toggle);
+		}
+	}
+}
+
+void dspEngine::stopAllDSPEffectsInSystem(string systemID)
+{
+	auto inst = FMOD_Handler::instance();
+	auto dspIt = inst->_mDSP.find(systemID);
+
+	if (dspIt != inst->_mDSP.end())
+	{
+		auto systemDSPs = inst->_mDSP.equal_range(systemID);
+		for (auto it = systemDSPs.first; it != systemDSPs.second; it++)
+		{
+			it->second->setBypass(true);
+		}
+	}
+	else
+	{
+		cout << "stopAllDSPEffects warning: System \"" << systemID << "\" has no DSP effects" << endl;
+	}
+}
+
+void dspEngine::removeDSPEffect(string systemID, FMOD_DSP_TYPE dspType)
+{
+	FMOD::DSP *dspToRemove;
+	if (checkDSPInSystem(systemID, dspType, &dspToRemove))
+	{
+		auto inst = FMOD_Handler::instance();
+		auto systemIt = inst->_mSystems.find(systemID);
+		if (systemIt != inst->_mSystems.end())
+		{
+			FMOD::ChannelGroup *master;
+			if (audioEngine::errorCheck(systemIt->second->getMasterChannelGroup(&master)))
+			{
+				FMOD_DSP_TYPE dspCheck;
+				auto systemDSPs = inst->_mDSP.equal_range(systemID);
+				for (auto it = systemDSPs.first; it != systemDSPs.second; it++)
+				{
+					it->second->getType(&dspCheck);
+					if (dspCheck == dspType)
+					{
+						inst->_mDSP.erase(it);
+						audioEngine::errorCheck(master->removeDSP(dspToRemove));
+						audioEngine::errorCheck(dspToRemove->release());
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+void dspEngine::removeAllDSPEffectsInSystem(string systemID)
+{
+	auto inst = FMOD_Handler::instance();
+	
+	if (inst->_mDSP.count(systemID))
+	{
+		FMOD::ChannelGroup *master;
+		audioEngine::errorCheck(inst->_mSystems[systemID]->getMasterChannelGroup(&master));
+
+		vector<FMOD_Handler::_dspMap::iterator> mapDSPsToRemove;
+		auto systemDSPs = inst->_mDSP.equal_range(systemID);
+		for (auto it = systemDSPs.first; it != systemDSPs.second; it++)
+		{
+			audioEngine::errorCheck(master->removeDSP(it->second));
+			audioEngine::errorCheck(it->second->release());
+			mapDSPsToRemove.push_back(it);
+		}
+
+		for (auto it = mapDSPsToRemove.begin(); it != mapDSPsToRemove.end(); it++)
+		{
+			inst->_mDSP.erase(*it);
+		}
+	}
+}
+
+bool dspEngine::checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput)
+{
+	auto inst = FMOD_Handler::instance();
+
+	if (inst->_mDSP.count(systemID))
+	{
+		FMOD_DSP_TYPE dspCheck;
+		auto systemDSPs = inst->_mDSP.equal_range(systemID);
+		for (auto it = systemDSPs.first; it != systemDSPs.second; it++)
+		{
+			it->second->getType(&dspCheck);
+			if (dspCheck == dspType)
+			{
+				if (dspOutput)
+				{
+					*dspOutput = it->second;
+				}
+				return true;
+			}
+		}
+
+		cout << "checkDSPInSystem warning: dspType \"" << dspType << "\" not found in _mDSP" << endl;
+	}
+	else
+	{
+		cout << "checkDSPInSystem warning: System \"" << systemID << "\" has no DSP effects" << endl;
+	}
+
+	return false;
+	//Returns false if either the system name does not exist or the DSP effect type is not found
+}
+
+inline bool dspEngine::checkIndex(int index, int limit)
+{
+	if ((index >= 0) && (index <= limit))
+	{
+		return true;
+	}
+	return false;
+}
 
 //Change the entry point to something/somewhere else.
 //This main is here just for quick and dirty testing
@@ -309,11 +462,21 @@ int main()
 	string m = "audio/drumloop.wav";
 	string p = "audio/jaguar.wav";
 	auto ae = new audioEngine();
+	auto de = new dspEngine();
 	ae->init();
 	ae->addSystem(n);
-	
-	int id = ae->aePlaySound(n, p);
+	ae->addSystem(n1);
+	ae->loadSound(n, m, true, true, false);
+	ae->loadSound(n1, p, true, false, false);
+	int id = ae->aePlaySound(n, m);
+	int id2 = ae->aePlaySound(n1, p);
 	ae->setChannelVolume(n, id, 0);
+	ae->setChannelVolume(n1, id2, 0);
+	de->addDSPEffect(n, FMOD_DSP_TYPE_FLANGE);
+	de->addDSPEffect(n1, FMOD_DSP_TYPE_ECHO);
+	de->addDSPEffect(n1, FMOD_DSP_TYPE_CHORUS);
+	de->removeAllDSPEffectsInSystem(n);
+	de->removeAllDSPEffectsInSystem(n1);
 	while (1) { ae->update(); }
 	return 0;
 }
