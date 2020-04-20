@@ -254,6 +254,23 @@ void audioEngine::unloadAllChannelsInSystem(string systemID)
 	}
 }
 
+void audioEngine::togglePauseOnChannel(string systemID, int channelID)
+{
+	auto inst = FMOD_Handler::instance();
+	auto dChannelIt = inst->_dChannels.find(systemID);
+
+	if (dChannelIt != inst->_dChannels.end())
+	{
+		auto mChannelIt = dChannelIt->second.find(channelID);
+		if (mChannelIt != dChannelIt->second.end())
+		{
+			bool pauseState;
+			mChannelIt->second->getPaused(&pauseState);
+			mChannelIt->second->setPaused(!pauseState);
+		}
+	}
+}
+
 void audioEngine::setChannelVolume(string systemID, int channelID, float fVolumedB)
 {
 	auto inst = FMOD_Handler::instance();
@@ -475,6 +492,8 @@ int main()
 	de->addDSPEffect(n, FMOD_DSP_TYPE_FLANGE);
 	de->addDSPEffect(n1, FMOD_DSP_TYPE_ECHO);
 	de->addDSPEffect(n1, FMOD_DSP_TYPE_CHORUS);
+	ae->togglePauseOnChannel(n, id);
+	ae->togglePauseOnChannel(n1, id2);
 	de->removeAllDSPEffectsInSystem(n);
 	de->removeAllDSPEffectsInSystem(n1);
 	while (1) { ae->update(); }
