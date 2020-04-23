@@ -7,23 +7,7 @@
 			"customAuth": false
 		}
 	},
-	"api": {
-		"audioDumps": {
-			"service": "AppSync",
-			"providerPlugin": "awscloudformation",
-			"output": {
-				"authConfig": {
-					"additionalAuthenticationProviders": [],
-					"defaultAuthentication": {
-						"authenticationType": "AMAZON_COGNITO_USER_POOLS",
-						"userPoolConfig": {
-							"userPoolId": "authcompanionapp3b27d937"
-						}
-					}
-				}
-			}
-		}
-	},
+	"api": {},
 	"storage": {
 		"storageunit": {
 			"service": "S3",
