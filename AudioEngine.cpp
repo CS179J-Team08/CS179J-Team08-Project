@@ -38,7 +38,6 @@ void FMOD_Handler::addSystem(string systemID)
 	audioEngine::errorCheck(newSystem->init(512, FMOD_INIT_NORMAL, 0));
 	_mSystems[systemID] = newSystem;
 
-
 	_ChannelMap newChannelMap;
 	_dChannels[systemID] = newChannelMap;
 
@@ -65,6 +64,10 @@ void FMOD_Handler::removeSystem(string systemID)
 
 	_mSystems[systemID]->release();
 	_mSystems.erase(systemID);
+
+	dspEngine *d = new dspEngine();
+	d->removeAllDSPEffectsInSystem(systemID);
+	delete d;
 }
 
 /*
@@ -472,6 +475,7 @@ inline bool dspEngine::checkIndex(int index, int limit)
 
 //Change the entry point to something/somewhere else.
 //This main is here just for quick and dirty testing
+/*
 int main()
 {
 	string n = "test System";
@@ -499,3 +503,4 @@ int main()
 	while (1) { ae->update(); }
 	return 0;
 }
+*/
