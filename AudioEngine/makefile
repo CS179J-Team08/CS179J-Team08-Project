@@ -29,7 +29,7 @@ else
 endif
 
 SOURCE_FILES = \
-    audioTests.cpp \
+    FMOD_tests.cpp \
     AudioEngine.cpp \
 
 INCLUDE_DIRS = \
