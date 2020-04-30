@@ -1,0 +1,5 @@
+type Audio @model {
+  id: ID!
+  name: String!
+  description: String
+}

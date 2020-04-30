@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UploadFile renders a snapshot 1`] = `
+<div
+  className="App"
+>
+  <p>
+    Upload a file
+  </p>
+  <input
+    onChange={[Function]}
+    type="file"
+  />
+</div>
+`;

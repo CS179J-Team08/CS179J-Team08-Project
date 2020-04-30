@@ -1,0 +1,20 @@
+{
+    "default": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-companion-app-default-204657-authRole",
+            "UnauthRoleArn": "arn:aws:iam::842925435506:role/amplify-companion-app-default-204657-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::842925435506:role/amplify-companion-app-default-204657-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "amplify-companion-app-default-204657-deployment",
+            "UnauthRoleName": "amplify-companion-app-default-204657-unauthRole",
+            "StackName": "amplify-companion-app-default-204657",
+            "StackId": "arn:aws:cloudformation:us-west-2:842925435506:stack/amplify-companion-app-default-204657/974afd90-7e02-11ea-9d02-027518039cd6",
+            "AmplifyAppId": "d38l80g0uos8qj"
+        },
+        "categories": {
+            "auth": {
+                "companionapp3b27d937": {}
+            }
+        }
+    }
+}
