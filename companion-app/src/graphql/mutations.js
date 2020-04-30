@@ -1,63 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createDump = /* GraphQL */ `
-  mutation CreateDump(
-    $input: CreateDumpInput!
-    $condition: ModelDumpConditionInput
-  ) {
-    createDump(input: $input, condition: $condition) {
-      id
-      name
-      owner
-      files {
-        items {
-          id
-          bucket
-        }
-        nextToken
-      }
-    }
-  }
-`;
-export const updateDump = /* GraphQL */ `
-  mutation UpdateDump(
-    $input: UpdateDumpInput!
-    $condition: ModelDumpConditionInput
-  ) {
-    updateDump(input: $input, condition: $condition) {
-      id
-      name
-      owner
-      files {
-        items {
-          id
-          bucket
-        }
-        nextToken
-      }
-    }
-  }
-`;
-export const deleteDump = /* GraphQL */ `
-  mutation DeleteDump(
-    $input: DeleteDumpInput!
-    $condition: ModelDumpConditionInput
-  ) {
-    deleteDump(input: $input, condition: $condition) {
-      id
-      name
-      owner
-      files {
-        items {
-          id
-          bucket
-        }
-        nextToken
-      }
-    }
-  }
-`;
 export const createAudio = /* GraphQL */ `
   mutation CreateAudio(
     $input: CreateAudioInput!
@@ -65,25 +8,8 @@ export const createAudio = /* GraphQL */ `
   ) {
     createAudio(input: $input, condition: $condition) {
       id
-      dump {
-        id
-        name
-        owner
-        files {
-          nextToken
-        }
-      }
-      bucket
-      fullsize {
-        key
-        size
-        samples
-      }
-      length {
-        key
-        size
-        samples
-      }
+      name
+      description
     }
   }
 `;
@@ -94,25 +20,8 @@ export const updateAudio = /* GraphQL */ `
   ) {
     updateAudio(input: $input, condition: $condition) {
       id
-      dump {
-        id
-        name
-        owner
-        files {
-          nextToken
-        }
-      }
-      bucket
-      fullsize {
-        key
-        size
-        samples
-      }
-      length {
-        key
-        size
-        samples
-      }
+      name
+      description
     }
   }
 `;
@@ -123,25 +32,8 @@ export const deleteAudio = /* GraphQL */ `
   ) {
     deleteAudio(input: $input, condition: $condition) {
       id
-      dump {
-        id
-        name
-        owner
-        files {
-          nextToken
-        }
-      }
-      bucket
-      fullsize {
-        key
-        size
-        samples
-      }
-      length {
-        key
-        size
-        samples
-      }
+      name
+      description
     }
   }
 `;
