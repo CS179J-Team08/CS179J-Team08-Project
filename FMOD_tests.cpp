@@ -44,6 +44,31 @@ TEST_CASE("FMOD System addition and removal", "[FMOD::System]")
 		REQUIRE(inst->_dChannels.find("Test System 3") == inst->_dChannels.end());
 		REQUIRE(inst->_dSounds.size() == 3);
 		REQUIRE(inst->_dSounds.find("Test System 3") == inst->_dSounds.end());
-	}
+
+		a->removeSystem("Test System");
+		a->removeSystem("Test System 2");
+		a->removeSystem("Test System 4");
+	}	
+}
+
+TEST_CASE("Testing load and unload of sounds","[FMOD::Sound]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new audioEngine();
+	a->init();
+	a->addSystem("Test Load");
+	a->loadSound("Test Load", "audio/jaguar.wav", false, true, false);
+	auto dSoundsIt = inst->_dSounds.find("Test Load");
+	REQUIRE(dSoundsIt != inst->_dSounds.end());
+	auto mSoundsIt = dSoundsIt->second.find("audio/jaguar.wav");
+	REQUIRE(mSoundsIt != dSoundsIt->second.end());
+
+	FMOD_MODE mode;
+	FMOD::Sound *sound = inst->_dSounds["Test Load"]["audio/jaguar.wav"];
+	audioEngine::errorCheck(sound->getMode(&mode));
+	REQUIRE(mode & FMOD_LOOP_NORMAL);
 	
+	a->unloadSound("Test Load", "audio/jaguar.wav");
+	mSoundsIt = dSoundsIt->second.find("audio/jaguar.wav");
+	REQUIRE(mSoundsIt == dSoundsIt->second.end());
 }
