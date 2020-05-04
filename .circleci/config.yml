@@ -38,7 +38,7 @@ jobs:
          command: 'apt-get update && sudo apt-get install -y cmake'
       - run:
           name: Creating Binary Files
-          command: 'cd AudioEngine/ && make CPU=X86 CONFIG=Debug'
+          command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug'
       - run:
           name: Point Unit Testing
           command: 'cd AudioEngine/ && ./audio_test'
