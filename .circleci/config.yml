@@ -28,20 +28,14 @@ jobs:
         #- run: yarn --cwd companion-app/ build
 
       - run:
-          name: Installing CI System
+          name: Updating CI System
           command: 'apt-get update'
       - run:
-          name: Getting Software Properties Common
-          command: 'apt-get install software-properties-common -y'
-      - run:
-          name: Adding Python3.7 Repository
-          command: 'add-apt-repository ppa:jonathonf/python-3.7'
-      - run:
-          name: Update
-          command: 'apt-get update'
-      - run:
-          name: Installing Python3.7
-          command: "apt-get install python3.7 -y"
+          name:  Installing updates
+          command: 'sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget'
+          #- run:
+          #name: Installing Python3.7
+          #command: "apt-get install python3.7 -y"
       - run:
           name: Installing pip3
           command: "apt-get install python3-pip -y"
@@ -60,6 +54,9 @@ jobs:
       - run:
          name: Install CMAKE
          command: 'apt-get update && sudo apt-get install -y cmake'
+      - run:
+          name: Bulding Python3.7
+          command: 'cd tmp/ && wget https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz && tar -xf Python-3.7.2.tar.xz && cd Python-3.7.2 && ./configure --enable-optimizations && make -j 1 && make altinstall'
       - run:
           name: Creating Binary Files
           command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug'
