@@ -107,7 +107,9 @@ def list_AWS_buckets():
     #Begin to iterate over the dict and buckets and print out the name of each bucket
     print('Existing Buckets:')
     for bucket in response['Buckets']:
-        print(f'  {bucket["Name"]}')
+        #print(f'  {bucket["Name"]}')
+        name = "{}".format(bucket["Name"])
+        print(name)
 
 #The aws_download method takes in a bucketName to look at, a fileName that represent a file path to search for in the given bucket, and storageResult as the user specified file name for the resulting download to have.
 
@@ -165,6 +167,7 @@ if __name__ == '__main__':
         #Initialize our socket and connection to None, then begin their initialization
         s = None
         conn = None
+        list_AWS_buckets()
         s = socket_server_init()
         conn = socket_server_accept_connection(s)
         #Wait for a client request asking for file playback
