@@ -35,13 +35,13 @@ jobs:
           command: 'apt-get install software-properties-common -y'
       - run:
           name: Adding Python3.7 Repository
-          command: 'add-apt-repository ppa:deadsnakes/ppa'
+          command: 'add-apt-repository ppa:jonathonf/python3.6'
       - run:
           name: Update
           command: 'apt-get update'
       - run:
           name: Installing Python3.7
-          command: "apt-get install python3.7 -y"
+          command: "apt-get install python3.6 -y"
       - run:
           name: Installing pip3
           command: "apt-get install python3-pip -y"
