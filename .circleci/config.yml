@@ -56,7 +56,7 @@ jobs:
          command: 'apt-get update && sudo apt-get install -y cmake'
       - run:
           name: Bulding Python3.7
-          command: 'cd tmp/ && wget https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz && tar -xf Python-3.7.2.tar.xz && cd Python-3.7.2 && ./configure --enable-optimizations && make -j 1 && make altinstall'
+          command: 'cd /tmp && wget https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz && tar -xf Python-3.7.2.tar.xz && cd Python-3.7.2 && ./configure --enable-optimizations && make -j 1 && make altinstall'
       - run:
           name: Creating Binary Files
           command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug'
