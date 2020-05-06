@@ -8,6 +8,11 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sys/stat.h>
+#include <fstream>
+#include "json.hpp"
+
+using json = nlohmann::json;
 //Arbitrary port number needed for connection to python program.
 #define PORT 12345
 
@@ -73,6 +78,28 @@ void sig_Handler(int sockfd)   {
 	exit(1);
 }
 
+string parse_json_for_filename(json audio_options)   {
+	json::iterator iter = audio_options.begin();
+	struct stat buffer;
+	string fileName = iter.value();
+	if(stat(fileName.c_str(), &buffer) == 0)   {
+		return iter.value();
+	}
+	else   { 
+		return "Does not exist";
+	}
+}
+
+bool verify_json_exists(string fileName)   {
+	struct stat buffer;
+	if(stat(fileName.c_str(), &buffer) == 0)   {
+		return true;
+	}
+	else   {
+		return false;
+	}
+}
+
 int main()
 {
 	//Initialization of variables
@@ -89,6 +116,7 @@ int main()
 	sigIntHandler.sa_flags = 0;
 	sigaction(SIGINT, &sigIntHandler, NULL);
 	struct sockaddr_in servaddr;
+	json audio_options;
 
 	//Init the client
 	server_client_init(&sockfd, &servaddr);
@@ -119,11 +147,24 @@ int main()
 	server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("This is what is in the data buffer: %s\n", dataPtr);
 
+	string jsonFile = dataPtr;
+	if(verify_json_exists(jsonFile))   {
+		std::ifstream jsonStream(jsonFile);
+		jsonStream >> audio_options;
+	}
+	else   {
+		printf("Error the json given to the audio engine does not exist\nShutting down\n");
+		exit(0);
+	}
 
 	//Simple file playback that used the main code found in AudioEngine.cpp
 	//We just load the given file name from dataPtr into the audio engine and begin playback.
 	string n = "test System";
-	string m = dataPtr;
+	string m = parse_json_for_filename(audio_options);
+	if(m == "Does not exist")   {
+		printf("The file specified in the json does not exist. Shutting down\n");
+		exit(0);
+	}
 	auto ae = new audioEngine();
 	auto de = new dspEngine();
 	ae->init();

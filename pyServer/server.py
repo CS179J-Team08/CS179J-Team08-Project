@@ -10,9 +10,9 @@ PORT = 12345	# Arbitrary non-privileged port
 
 #This method begins the socket creation. We are using a TCP connection given the SOCK_STREAM option
 def socket_server_init():
-# Datagram (udp) socket
     try :
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print ('Socket created')
         return s
     except socket.error as msg :
@@ -88,9 +88,10 @@ def socket_server_await_request(conn):
 
 #This method is the response sent back to the c++ that initially requested a file for playback. It takes in the current connection and the fileName to send.
 def socket_server_respond_request(conn, fileName):
-    reply = bytes(fileName, 'utf-8')
+    #reply = bytes(fileName, 'utf-8')
+    reply = bytes("testJson.json", 'utf-8')
     length = len(reply.decode())
-    print("Length of file to play: " + str(length))
+    print("Length of JSON filename: " + str(length))
     print(str(reply))
     time.sleep(5)
     conn.sendall(bytes(str(length), 'utf-8'))
@@ -116,7 +117,8 @@ def aws_download(bucketName, fileName, storageResult):
     s3 = boto3.resource('s3')
     print(fileName)
     #Begin to download the specified fileName
-    s3.meta.client.download_file(bucketName, fileName, storageResult)
+    path = "../AudioEngine/" + storageResult
+    s3.meta.client.download_file(bucketName, fileName, path)
     print(storageResult,"was downloaded successfully!")
     return storageResult
 
@@ -140,6 +142,7 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
             fileName = aws_download(bucket_path, obj.key, target_data[1])
             return fileName
     print ("file not found")
+    return "file not found"
 
 
 #bucket_menu runs the input and output needed for file downloads

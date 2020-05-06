@@ -1,0 +1,14 @@
+{
+   "group": {
+      "userID1": "",
+      "userID2": "",
+      "userID3": "",
+      "userID4": "",
+      "userID5": ""
+   },
+   "filename": "test.flac",
+   "play": false,
+   "parameters":   {
+      "volume": 0.0
+   }
+}

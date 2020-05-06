@@ -42,3 +42,18 @@ jobs:
       - run:
           name: Point Unit Testing
           command: 'cd AudioEngine/ && ./audio_test'
+      - run:
+          name: Installing python3
+          command: "apt-get install python3-dev -y"
+      - run:
+          name: Installing pip3
+          command: "apt-get install python3-pip -y"
+      - run:
+          name: Installing boto3
+          command: "pip3 install boto3"
+      - run:
+          name: Installing pytest
+          command: "pip3 install pytest"
+      - run:
+          name: Run server.py unit tests
+          command: "cd pyServer/ && pytest"
