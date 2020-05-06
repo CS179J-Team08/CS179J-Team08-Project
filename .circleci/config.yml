@@ -44,7 +44,7 @@ jobs:
           command: 'cd AudioEngine/ && ./audio_test'
       - run:
           name: Installing python3
-          command: "apt-get install python3-dev -y"
+          command: "apt-get install python3.7 -y"
       - run:
           name: Installing pip3
           command: "apt-get install python3-pip -y"
