@@ -32,7 +32,7 @@ jobs:
           command: 'apt-get update'
       - run:
           name:  Installing updates
-          command: 'sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget'
+          command: 'apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget'
           #- run:
           #name: Installing Python3.7
           #command: "apt-get install python3.7 -y"
