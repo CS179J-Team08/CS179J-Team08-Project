@@ -5,14 +5,25 @@ import { withAuthenticator } from 'aws-amplify-react'
 
 // define a data packet JSON object
 let packet = {
-    filename: "",
-	  play: false
+  group: [
+    { userID: "" },
+    { userID: "" },
+    { userID: "" },
+    { userID: "" },
+    { userID: "" },
+  ],
+  filename: "",
+  play: false,
+  parameters: {
+    volume: 0.0
+  }
 };
 
 // set the JSON file prefix to the users uuid ("sub")
 let jsonFilePrefix = 'default';
 Auth.currentAuthenticatedUser().then((user) => {
   jsonFilePrefix = user.attributes.sub;
+  packet.group[0].userID = user.attributes.sub;
 })
 
 class UploadFile extends Component {
@@ -41,7 +52,8 @@ class UploadFile extends Component {
       sendPacket = () => {
         packet.filename = this.state.Filename;
         packet.play = this.state.playValue;
-
+        
+        console.log(packet.group[0].userID);
         console.log(packet.filename);
         console.log(packet.play);
 

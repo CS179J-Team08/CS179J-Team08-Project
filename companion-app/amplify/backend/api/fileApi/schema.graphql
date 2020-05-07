@@ -1,5 +1,12 @@
-type Audio @model {
+type Audio @model @auth(rules: [{allow: owner}]) {
   id: ID!
   name: String!
-  description: String
+  file: S3Object!
+  owner: String
+}
+
+type S3Object {
+  bucket: String!
+  region: String!
+  key: String!
 }
