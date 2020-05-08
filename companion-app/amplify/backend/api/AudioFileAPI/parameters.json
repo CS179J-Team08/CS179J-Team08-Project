@@ -1,5 +1,5 @@
 {
-    "AppSyncApiName": "fileApi",
+    "AppSyncApiName": "AudioFileAPI",
     "DynamoDBBillingMode": "PAY_PER_REQUEST",
     "DynamoDBEnableServerSideEncryption": "false",
     "AuthCognitoUserPoolId": {

@@ -9,7 +9,12 @@ export const createAudio = /* GraphQL */ `
     createAudio(input: $input, condition: $condition) {
       id
       name
-      description
+      owner
+      file {
+        bucket
+        region
+        key
+      }
     }
   }
 `;
@@ -21,7 +26,12 @@ export const updateAudio = /* GraphQL */ `
     updateAudio(input: $input, condition: $condition) {
       id
       name
-      description
+      owner
+      file {
+        bucket
+        region
+        key
+      }
     }
   }
 `;
@@ -33,7 +43,12 @@ export const deleteAudio = /* GraphQL */ `
     deleteAudio(input: $input, condition: $condition) {
       id
       name
-      description
+      owner
+      file {
+        bucket
+        region
+        key
+      }
     }
   }
 `;

@@ -2,6 +2,8 @@ import React, { useEffect, useState, Component } from 'react';
 import { Storage, API, graphqlOperation, Auth } from 'aws-amplify'
 import uuid from 'uuid/v4'
 import { withAuthenticator } from 'aws-amplify-react'
+import { createAudio, updateAudio, deleteAudio } from '../graphql/mutations';
+import { listAudios } from '../graphql/queries';
 
 // define a data packet JSON object
 let packet = {
@@ -43,9 +45,10 @@ class UploadFile extends Component {
         const file = evt.target.files[0];
         const name = file.name;
     
-        Storage.put(name, file, { level: 'private' }).then(() => {
+        Storage.put(name, file).then(() => {
           this.setState({ file: name });
         })
+        .catch(err => console.log(err));
       }
 
       // send data packet to public bucket directory

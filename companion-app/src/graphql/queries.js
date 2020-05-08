@@ -6,7 +6,12 @@ export const getAudio = /* GraphQL */ `
     getAudio(id: $id) {
       id
       name
-      description
+      owner
+      file {
+        bucket
+        region
+        key
+      }
     }
   }
 `;
@@ -20,7 +25,12 @@ export const listAudios = /* GraphQL */ `
       items {
         id
         name
-        description
+        owner
+        file {
+          bucket
+          region
+          key
+        }
       }
       nextToken
     }
