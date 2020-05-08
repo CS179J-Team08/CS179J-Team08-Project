@@ -2,8 +2,8 @@ import React, { useEffect, useState, Component } from 'react';
 import { Storage, API, graphqlOperation, Auth } from 'aws-amplify'
 import uuid from 'uuid/v4'
 import { withAuthenticator } from 'aws-amplify-react'
-import { createAudio, updateAudio, deleteAudio } from '../graphql/mutations';
-import { listAudios } from '../graphql/queries';
+import * as mutations from '../graphql/mutations';
+import * as queries from '../graphql/queries';
 
 // define a data packet JSON object
 let packet = {
@@ -41,14 +41,31 @@ class UploadFile extends Component {
         this.updateFileName = this.updateFileName.bind(this);
       }
 
-      uploadAudioFile = (evt) => {
+      uploadAudioFile = async (evt) => {
         const file = evt.target.files[0];
         const name = file.name;
-    
-        Storage.put(name, file).then(() => {
-          this.setState({ file: name });
-        })
-        .catch(err => console.log(err));
+        const audioFile = {
+          bucket: 'cs-audiofile-bucketdefault-default',
+          region: 'us-west-2',
+          key: '/public/' + name
+        };
+        
+        const audioFileDetails = {
+          name: name,
+          file: audioFile
+        };
+
+        try {
+          await Storage.put(name, file, { contentType: 'mimeType' }).then(() => {
+            this.setState({ file: name });
+          })
+          .catch(err => console.log(err));
+
+          await API.graphql(graphqlOperation(mutations.createAudio, {input: audioFileDetails}));
+          console.log('File successfully added');
+        } catch (err) {
+          console.log('error: ', err);
+        }
       }
 
       // send data packet to public bucket directory
