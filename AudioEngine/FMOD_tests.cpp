@@ -100,6 +100,20 @@ TEST_CASE("Create Channel via aePlaySound and unload channels", "[FMOD::System::
 	REQUIRE(mChannelIt3 == inst->_dChannels["Test aePlaySound"].end());
 }
 
+TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDSPEffect]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	//a->init();
+	//a->addSystem("Test Add");
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
+	auto mDSPIt = inst->_mDSP.find("Test Add");
+	REQUIRE(mDSPIt == inst->_mDSP.end());
+
+	a->removeDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
+	REQUIRE(inst->_mDSP.empty());
+}
+
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
 	auto inst = FMOD_Handler::instance();
@@ -123,3 +137,4 @@ TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
 	REQUIRE(volume == 56234.13251f);
 }
+
