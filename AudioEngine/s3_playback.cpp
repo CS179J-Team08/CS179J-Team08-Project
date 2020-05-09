@@ -1,5 +1,8 @@
 #include "AudioEngine.h"
+#include "PacketParser.h"
+
 #include <cstring>
+#include <string>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,86 +104,95 @@ bool verify_json_exists(string fileName)   {
 
 int main()
 {
-	//Initialization of variables
-	int sockfd;
-	int result;
-	char dataBuffer[1024];
-	char *client_ack = "Connection to server from AudioEngine";
-	char *client_request = "Requesting a file for playback";
-	char *dataPtr = dataBuffer;
-	//Initialzation of our sigIntHandler. Here we assign our sigIntHandler the function to execute and to what specific signal it should catch. The SIGINT signal is what is sent when we press control + c on the keyboard
-	struct sigaction sigIntHandler;
-	sigIntHandler.sa_handler = sig_Handler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sigIntHandler.sa_flags = 0;
-	sigaction(SIGINT, &sigIntHandler, NULL);
-	struct sockaddr_in servaddr;
-	json audio_options;
+    //Initialization of variables
+    int sockfd;
+    int result;
+    char dataBuffer[1024];
+    char *client_ack = "Connection to server from AudioEngine";
+    char *client_request = "Requesting a file for playback";
+    char *dataPtr = dataBuffer;
+    packetParser parser; // for parsing json string packets
+    dataPacket audioSettings; // data packet with audio settings
+    //Initialzation of our sigIntHandler. Here we assign our sigIntHandler the function to execute and to what specific signal it should catch. The SIGINT signal is what is sent when we press control + c on the keyboard
+    struct sigaction sigIntHandler;
+    sigIntHandler.sa_handler = sig_Handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, NULL);
+    struct sockaddr_in servaddr;
+    json audio_options;
 
-	//Init the client
-	server_client_init(&sockfd, &servaddr);
+    //Init the client
+    server_client_init(&sockfd, &servaddr);
 
-	//Send a response to acknowledge the connection from client to server
-	printf("Sending Client Connection\n");
-	result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
-	printf("Result: %d\n", result);
-	printf("Message sent!\n");
+    //Send a response to acknowledge the connection from client to server
+    printf("Sending Client Connection\n");
+    result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
+    printf("Result: %d\n", result);
+    printf("Message sent!\n");
 //	sleep(5);
 
-	//Wait for the server's response 
-	server_client_await_request(sockfd, dataPtr, &servaddr);
-	/*
-	//Initiate a request for file playback by sending a request
-	printf("Sending request for playback info\n");
-	sleep(5);
-	result = sendto(sockfd, client_request, strlen(client_request), 0, NULL, 0);
-	printf("Result: %d\n", result);
-	sleep(5);
+    //Wait for the server's response 
+    server_client_await_request(sockfd, dataPtr, &servaddr);
 
-	//Await the response of the playback request
-	server_client_await_request(sockfd, dataPtr, &servaddr);
-	printf("Waiting for file to playback\n");
-	sleep(5);
+    /*
+    //Initiate a request for file playback by sending a request
+    printf("Sending request for playback info\n");
+    sleep(5);
+    result = sendto(sockfd, client_request, strlen(client_request), 0, NULL, 0);
+    printf("Result: %d\n", result);
+    sleep(5);
 
-	//Now wait for the file to play
-	*/
-	printf("Listening to python server\n");
-	server_client_await_request(sockfd, dataPtr, &servaddr);
-	printf("This is what is in the data buffer: %s\n", dataPtr);
+    //Await the response of the playback request
+    server_client_await_request(sockfd, dataPtr, &servaddr);
+    printf("Waiting for file to playback\n");
+    sleep(5);
 
-	string jsonFile = dataPtr;
-	printf("This is the entire message from the SQS queue\n", jsonFile);
+    //Now wait for the file to play
+    */
+    printf("Listening to python server\n");
+    while(1)   
+    {
+        server_client_await_request(sockfd, dataPtr, &servaddr);
+//        printf("This is what is in the data buffer: %s\n", dataPtr);
+
+        // start parser
+        string jsonDataPacket(dataPtr);
+	parser.parseData(jsonDataPacket);
+        audioSettings = parser.getCurrentRequest();
+
+        cout << "filename: " << audioSettings.filename << '\n';
+        cout << "Play: " << audioSettings.play << '\n';
+        cout << "Volume: " << audioSettings.volume << '\n';
+    }
 
 /*
-	if(verify_json_exists(jsonFile))   {
-		std::ifstream jsonStream(jsonFile);
-		jsonStream >> audio_options;
-	}
-	else   {
-		printf("Error the json given to the audio engine does not exist\nShutting down\n");
-		exit(0);
-	}
-	*/
+    if(verify_json_exists(jsonFile))   {
+            std::ifstream jsonStream(jsonFile);
+            jsonStream >> audio_options;
+    }
+    else   {
+            printf("Error the json given to the audio engine does not exist\nShutting down\n");
+            exit(0);
+    }
 
-	//Simple file playback that used the main code found in AudioEngine.cpp
-	//We just load the given file name from dataPtr into the audio engine and begin playback.
-	string pathToFile = "audio/" + jsonFile;
-	string n = "test System";
-	string m = pathToFile;
-	/*(
-	if(m == "Does not exist")   {
-		printf("The file specified in the json does not exist. Shutting down\n");
-		exit(0);
-	}
-	*/
-	auto ae = new audioEngine();
-	auto de = new dspEngine();
-	ae->init();
-	ae->addSystem(n);
-	ae->loadSound(n, m, true, true, false);
-	int id = ae->aePlaySound(n, m);
-	ae->setChannelVolume(n, id, 0);
-	//At this point we loop the track infinitely. Use control + c to shutdown the program gracefully.
-	while (1) { ae->update(); }
-	return 0; 
+    //Simple file playback that used the main code found in AudioEngine.cpp
+    //We just load the given file name from dataPtr into the audio engine and begin playback.
+    string n = "test System";
+    string m = parse_json_for_filename(audio_options);
+    if(m == "Does not exist")   {
+            printf("The file specified in the json does not exist. Shutting down\n");
+            exit(0);
+    }
+    auto ae = new audioEngine();
+    auto de = new dspEngine();
+    ae->init();
+    ae->addSystem(n);
+    ae->loadSound(n, m, true, true, false);
+    int id = ae->aePlaySound(n, m);
+    ae->setChannelVolume(n, id, 0);
+    //At this point we loop the track infinitely. Use control + c to shutdown the program gracefully.
+    while (1) { ae->update(); }
+    return 0; 
+    */
 }
