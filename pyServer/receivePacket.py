@@ -104,7 +104,7 @@ def await_SQS_response():
                 print(messageBody)
                 fileName = messageBody["filename"]
                 play_option = messageBody["play"]
-                volume_option = messageBody["parameters"][0]["volume"]
+                volume_option = messageBody["parameters"]["volume"]
                 print(fileName)
                 print(play_option)
                 print(volume_option)
