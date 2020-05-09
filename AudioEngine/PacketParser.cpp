@@ -18,9 +18,6 @@ void packetParser::parseData(string packet)
 	char *prefix = new char[dir.size() + packet.size() + 1];
 	strncpy(prefix, "audio/", dir.size() + packet.size() + 1);
         
-        string newPrefix(prefix);
-        cout << newPrefix << '\n';
-
 	vector<char *> packetData;
 	while (token)
 	{
@@ -41,21 +38,19 @@ void packetParser::parseData(string packet)
 		{
 			if (it + 1 != packetData.end() && strcmp(*(it + 1), "userID") != 0)
 			{
-				//strncat(prefix, *(it + 1), dir.size() + packet.size() + 1);
-                                newPrefix.append(*it);
+				strncat(prefix, *(it + 2), dir.size() + packet.size() + 1);
+        			request.filename = prefix; 
 			}
-                        cout << newPrefix << '\n';
-			request.filename = newPrefix.c_str();
 		}
 		else if (strcmp(*it, "play") == 0)
 		{
 			if (it + 1 != packetData.end())
 			{
-				if (strcmp(*(it + 1), "true") == 0)
+				if (strcmp(*(it + 2), "true") == 0)
 				{
 					request.play = true;
 				}
-				else if (strcmp(*(it + 1), "false") == 0)
+				else if (strcmp(*(it + 2), "false") == 0)
 				{
 					request.play = false;
 				}
@@ -66,8 +61,8 @@ void packetParser::parseData(string packet)
 			if (it + 1 != packetData.end())
 			{
                                 // this is throwing an exception
-				//request.volume = stof(*(it + 1));
-                                cout << "error parsing volume, stof throwing exception\n";
+				request.volume = stof(*(it + 2));
+//                                cout << "error parsing volume, stof throwing exception\n";
 			}
 		}
 	}
