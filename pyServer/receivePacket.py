@@ -2,56 +2,55 @@ import boto3
 import json
 import sys
 
-sqs = boto3.resource('sqs')
-sqsClient = boto3.client('sqs')
-
-#queue = sqs.get_queue_by_name(QueueName='PacketQueue')
-queueClient = sqsClient.create_queue(
-        QueueName='23292c32-66b1-409a-9dd4-e25322cba530'
-        )
-queueUrl = queueClient['QueueUrl']
-queueAttr = sqsClient.get_queue_attributes(
-            QueueUrl=queueUrl,
-            AttributeNames=[
-                'QueueArn'
-            ]
-        )
-
-queueArn = queueAttr['Attributes']['QueueArn']
-
-queue = sqs.Queue(queueUrl)
-
-queuePolicy = {
-    "Version": "2012-10-17", 
-    "Id": queueArn + "/SQSDefaultPolicy",
-    "Statement": [{
-        "Sid": "Send_Receive_All",
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": [
-            "SQS:GetQueueAttributes",
-            "SQS:GetQueueUrl",
-            "SQS:ReceiveMessage",
-            "SQS:SendMessage"
-        ],
-        "Resource": queueArn
-    }]
-}
-
-queuePolicyStr = json.dumps(queuePolicy)
-
-response = queue.set_attributes(
-            Attributes={
-                'Policy': queuePolicyStr     
-            } 
-        )
-
 maxQueueMessages = 10
-actualMessages = []
+def sqs_init():
+    sqs = boto3.resource('sqs')
+    sqsClient = boto3.client('sqs')
 
-print("Receiving messages from: {0}".format(queue.url))
-#print(queue.url)
-print('')
+    #queue = sqs.get_queue_by_name(QueueName='PacketQueue')
+    queueClient = sqsClient.create_queue(
+            QueueName='6aa75722-15a4-488a-907a-e546c678d691'
+            )
+    queueUrl = queueClient['QueueUrl']
+    queueAttr = sqsClient.get_queue_attributes(
+                QueueUrl=queueUrl,
+                AttributeNames=[
+                    'QueueArn'
+                ]
+            )
+
+    queueArn = queueAttr['Attributes']['QueueArn']
+
+    queue = sqs.Queue(queueUrl)
+
+    queuePolicy = {
+        "Version": "2012-10-17", 
+        "Id": queueArn + "/SQSDefaultPolicy",
+        "Statement": [{
+            "Sid": "Send_Receive_All",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "SQS:GetQueueAttributes",
+                "SQS:GetQueueUrl",
+                "SQS:ReceiveMessage",
+                "SQS:SendMessage"
+            ],
+            "Resource": queueArn
+        }]
+    }
+
+    queuePolicyStr = json.dumps(queuePolicy)
+
+    response = queue.set_attributes(
+                Attributes={
+                    'Policy': queuePolicyStr     
+                } 
+            )
+    print("Receiving messages from: {0}".format(queue.url))
+    #print(queue.url)
+    print('')
+    return queue
 
 def verify_data(queue_data):
     if queue_data[2].isnumeric() == False:
@@ -87,7 +86,7 @@ def mock_SQS_queue(string_data):
         data_is_vaild = False
         return (fileName, message_to_engine, play_option, volume_option, data_is_vaild)
 
-def await_SQS_response():
+def await_SQS_response(queue):
     waiting_for_SQS = 1
     fileName = None
     play_option = None
@@ -104,7 +103,7 @@ def await_SQS_response():
                 print(messageBody)
                 fileName = messageBody["filename"]
                 play_option = messageBody["play"]
-                volume_option = messageBody["parameters"][0]["volume"]
+                volume_option = messageBody["parameters"]["volume"]
                 print(fileName)
                 print(play_option)
                 print(volume_option)

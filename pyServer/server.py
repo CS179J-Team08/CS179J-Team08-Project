@@ -4,6 +4,7 @@ import socket
 import time
 import json
 from receivePacket import await_SQS_response
+from receivePacket import sqs_init
 #Definitions of the HOST and PORT to use for the socket connection
 HOST = 'localhost'	# Symbolic name meaning all available interfaces
 PORT = 12345	# Arbitrary non-privileged port
@@ -83,6 +84,7 @@ def aws_download(bucketName, fileName, storageResult):
     s3 = boto3.resource('s3')
     print(fileName)
     #Begin to download the specified fileName
+    download_path = "publc/" + fileName
     path = "../AudioEngine/audio/" + storageResult
     s3.meta.client.download_file(bucketName, fileName, path)
     print(storageResult,"was downloaded successfully!")
@@ -116,14 +118,16 @@ if __name__ == '__main__':
     s = socket_server_init()
     conn = socket_server_accept_connection(s)
     server_client =  boto3.resource('s3')
-    bucket = "testing-pi"
+    bucket = "cs-audiofile-bucketdefault-default"
+    message_queue = sqs_init()
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
-            sqs_response = await_SQS_response()
+            sqs_response = await_SQS_response(message_queue)
             if sqs_response[4] == True:
                 confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
-                socket_server_respond_request(conn, sqs_response[1])
+                #socket_server_respond_request(conn, sqs_response[1])
+                socket_server_respond_request(conn, sqs_response[0])
             else:
                 print("Error the received JSON from SQS is invaild")
                 print("Waiting for the next request before sending data to the audio engine")

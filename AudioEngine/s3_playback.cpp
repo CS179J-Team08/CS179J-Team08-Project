@@ -145,13 +145,11 @@ int main()
 	//Now wait for the file to play
 	*/
 	printf("Listening to python server\n");
-	while(1)   {
 	server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("This is what is in the data buffer: %s\n", dataPtr);
 
 	string jsonFile = dataPtr;
 	printf("This is the entire message from the SQS queue\n", jsonFile);
-	}
 
 /*
 	if(verify_json_exists(jsonFile))   {
@@ -162,15 +160,19 @@ int main()
 		printf("Error the json given to the audio engine does not exist\nShutting down\n");
 		exit(0);
 	}
+	*/
 
 	//Simple file playback that used the main code found in AudioEngine.cpp
 	//We just load the given file name from dataPtr into the audio engine and begin playback.
+	string pathToFile = "audio/" + jsonFile;
 	string n = "test System";
-	string m = parse_json_for_filename(audio_options);
+	string m = pathToFile;
+	/*(
 	if(m == "Does not exist")   {
 		printf("The file specified in the json does not exist. Shutting down\n");
 		exit(0);
 	}
+	*/
 	auto ae = new audioEngine();
 	auto de = new dspEngine();
 	ae->init();
@@ -181,5 +183,4 @@ int main()
 	//At this point we loop the track infinitely. Use control + c to shutdown the program gracefully.
 	while (1) { ae->update(); }
 	return 0; 
-	*/
 }
