@@ -16,6 +16,7 @@ let packet = {
   ],
   filename: "",
   play: false,
+  stop: false,
   parameters: {
     volume: 0.0
   }
@@ -34,37 +35,62 @@ class UploadFile extends Component {
 
         this.state = {
           Filename: "",
-          playValue: 'false'
+          playValue: 'false',
+          volume: 0.0
         };
 
         this.updatePlayState = this.updatePlayState.bind(this);
         this.updateFileName = this.updateFileName.bind(this);
+        this.updateVolume = this.updateVolume.bind(this);
+
       }
 
       uploadAudioFile = async (evt) => {
+        // get the file and file name
         const file = evt.target.files[0];
         const name = file.name;
-        const audioFile = {
-          bucket: 'cs-audiofile-bucketdefault-default',
-          region: 'us-west-2',
-          key: '/public/' + name
-        };
+
+        // get all files currently in database
+        const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
+        const items = audioFiles.data.listAudios.items;
+
+        // check if file name already exists for current user
+        var fileExists = false;
+        for (const i in items) {
+          if(items[i].name == name) {
+            fileExists = true;
+          }
+        }
         
-        const audioFileDetails = {
-          name: name,
-          file: audioFile
-        };
+        if(!fileExists) {
+          // define metadata for the file
+          const audioFile = {
+            bucket: 'cs-audiofile-bucketdefault-default',
+            region: 'us-west-2',
+            key: '/public/' + name
+          };
+          
+          const audioFileDetails = {
+            name: name,
+            file: audioFile
+          };
 
-        try {
-          await Storage.put(name, file, { contentType: 'mimeType' }).then(() => {
-            this.setState({ file: name });
-          })
-          .catch(err => console.log(err));
+          try {
+            // put file into S3
+            await Storage.put(name, file, { contentType: 'mimeType' }).then(() => {
+              this.setState({ file: name });
+            })
+            .catch(err => console.log(err));
 
-          await API.graphql(graphqlOperation(mutations.createAudio, {input: audioFileDetails}));
-          console.log('File successfully added');
-        } catch (err) {
-          console.log('error: ', err);
+            // create pointer in dynamoDB
+            await API.graphql(graphqlOperation(mutations.createAudio, {input: audioFileDetails}));
+
+            window.alert('File successfully uploaded');
+          } catch (err) {
+            console.log('error: ', err);
+          }
+        } else {
+          window.alert('Selected file already exists in your database.');
         }
       }
 
@@ -72,10 +98,13 @@ class UploadFile extends Component {
       sendPacket = () => {
         packet.filename = this.state.Filename;
         packet.play = this.state.playValue;
+        packet.parameters.volume = this.state.volume;
         
+        // debugging purposes
         console.log(packet.group[0].userID);
         console.log(packet.filename);
         console.log(packet.play);
+        console.log(packet.volume);
 
         Storage.put(jsonFilePrefix + '.json', packet)
         .then (result => console.log(result))
@@ -87,7 +116,11 @@ class UploadFile extends Component {
       }
 
       updateFileName(event) {
-        this.setState({ Filename: event.target.value })
+        this.setState({ Filename: event.target.value });
+      }
+
+      updateVolume(event) {
+        this.setState({ volume: event.target.value });
       }
 
       render() {
@@ -110,6 +143,10 @@ class UploadFile extends Component {
                       <option value="true">play</option>
                       <option value="false">stop</option>
                     </select>
+                  </label>
+                  <label>
+                    Volume:
+                    <input type="number" step="0.1" onChange={this.updateVolume} />
                   </label>
                 </form>
                 <button onClick={this.sendPacket}>Send</button>

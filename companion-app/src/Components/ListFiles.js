@@ -15,37 +15,28 @@ export default class ListFiles extends Component {
     }
 
     updateFileList = async () => {
+        // fetch files from database
         const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
         const items = audioFiles.data.listAudios.items;
 
-        console.log(this.state.fileList);
+        // update file list
         for (const i in items) {
             this.state.fileList[i] = items[i].name;
         }
 
+        // re render (there is probably way better ways to do this)
         this.setState(this.state);
     }
 
     componentDidMount() {
         
     }
-/*
-    getUserAudioFiles = async () => {
-        const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
-        const items = audioFiles.data.listAudios.items;
-        const filenames = []
 
-        for (const i in items) {
-            filenames[i] = items[i].name;
-            console.log(filenames[i]);
-        }
-    }
-*/
     render() {
         return(
             <div>
                 <h3>File List</h3>
-                <button onClick={ this.updateFileList }>Update File List</button>
+                <button onClick={ this.updateFileList }>Refresh File List</button>
                 <ul>
                     { this.state.fileList.map(listFile => (
                         <li> { listFile } </li>
