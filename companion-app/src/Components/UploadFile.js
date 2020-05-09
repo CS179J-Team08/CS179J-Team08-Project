@@ -16,7 +16,7 @@ let packet = {
   ],
   filename: "",
   play: false,
-  stop: false,
+//  stop: false,
   parameters: {
     volume: 0.0
   }
