@@ -7,6 +7,8 @@ import threading
 import socket
 import time
 from os import path
+from receivePacket import mock_SQS_queue 
+from receivePacket import verify_data
 from server import socket_server_init
 from server import socket_server_accept_connection
 from server import confirm_file_is_vaild
@@ -86,3 +88,4 @@ def test_server_file_request_response():
     client_socket.close()
     assert datalen != None
     assert data.decode() == "testfile.txt"
+

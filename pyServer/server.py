@@ -10,7 +10,12 @@ HOST = 'localhost'	# Symbolic name meaning all available interfaces
 PORT = 12345	# Arbitrary non-privileged port
 
 
-#This method begins the socket creation. We are using a TCP connection given the SOCK_STREAM option
+#Author: Angel Renteria
+#Output:A socket that will be used to create a server connection
+#Input: None
+#
+#Description: This method begins the initialization of a socket that creates a TCP connection between itself and our C++ audio engine
+
 def socket_server_init():
     try :
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,7 +27,13 @@ def socket_server_init():
         sys.exit()
 
 
-#This method initiates the creation of the python server.
+#Author: Angel Renteria
+#Output: A connection object between this server and a c++ client
+#
+#Input: A socket connection representing our server connection
+#
+#Description: This method acts an acknowledgement between the server and client that a connection has been made. The server binds and begins to accept connections. Once this is done a series of receivess and sends are executed over the connection to ensure can be sent back and forth
+
 def socket_server_accept_connection(s):
     #The response message to be sent back. The response must be sent as of data type bytes.
     #Here the bytes method formats the first arguement into the form of b'...' with the utf-8 encoding
@@ -67,9 +78,15 @@ def socket_server_accept_connection(s):
     return conn
 
 
-#This method is the response sent back to the c++ that initially requested a file for playback. It takes in the current connection and the fileName to send.
-def socket_server_respond_request(conn, fileName):
-    reply = bytes(str(fileName), 'utf-8')
+#Author: Angel Renteria
+#Output: None
+#
+#Input: The connection object that handles the sending and receiving of data over our TCP connection, and a string representing the SQS message
+#
+#Description: This method sends the information gotten from our SQS queue and sends it to the C++ program.
+
+def socket_server_respond_request(conn, data):
+    reply = bytes(str(data), 'utf-8')
     length = len(reply.decode())
     print("Length of queue message: " + str(length))
   #  time.sleep(5)
@@ -78,7 +95,13 @@ def socket_server_respond_request(conn, fileName):
     conn.sendall(reply)
 
 
-#Returns the storageResult string name
+#Author: Angel Renteria
+#Output: A string representing the downloaded file's name
+#
+#Input: A string representing an S3 bucket name, a string representing a file name, a string representing the resulting downloaded file name
+#
+#Description: This method utilizes the boto3 library to access our S3 buckets and begin to download an file given the input arguments.
+
 def aws_download(bucketName, fileName, storageResult):
     #Initialize a boto3 resource
     s3 = boto3.resource('s3')
@@ -93,9 +116,13 @@ def aws_download(bucketName, fileName, storageResult):
 
 
 
-#confirm_file_is_vaild is method that takes in a bucket to target, the bucket as an object to iterate over, and a tuple called target_data that represents the fileName, and storageResult we want from a given bucket.
+#Author: Angel Renteria
+#Output: String data that either represents a file that was downloaded or "file not found if the file does not exist in the S3 bucket
+#
+#Input: A string representing an S3 bucket name, a bucket object of the bucket to look into, and a tuple that contains the file name to search for as the first element
+#
+#Description: This method iterates over a buckets contents and begins to search if a given file name exists. If it does not exist then we return "file not found". Otherwise we begin our file download by calling aws_download()
 
-#Returns a string called fileName that contains the user specified file name.
 def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
     #Iterate over the object looking for the particular fileName in target_data. (fileName = target_data[0])
     for obj in target_bucket.objects.all():
