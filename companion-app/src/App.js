@@ -10,6 +10,7 @@ import { Form, Grid, Header, Input, List, Segment } from 'semantic-ui-react';
 import { v4 as uuid } from 'uuid';
 
 import UploadFile from "./Components/UploadFile";
+import ListFiles from "./Components/ListFiles";
 
 Amplify.configure(aws_exports);
 
@@ -18,6 +19,7 @@ class App extends Component {
     return (
      <div className="App">
        <UploadFile />
+       <ListFiles />
      </div>
     );
   }

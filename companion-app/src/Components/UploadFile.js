@@ -94,10 +94,11 @@ class UploadFile extends Component {
         return (
             <>
               <div>
-                <p>Upload a file</p>
+                <h3>Upload a file</h3>
                 <input type="file" onChange={this.uploadAudioFile} />
               </div>
               <div>
+                <h3>Send file to device</h3>
                 <form>
                   <label>
                     Filename:
@@ -111,7 +112,7 @@ class UploadFile extends Component {
                     </select>
                   </label>
                 </form>
-                <button onClick={this.sendPacket}>Update Settings</button>
+                <button onClick={this.sendPacket}>Send</button>
               </div>
             </>
         );
