@@ -154,7 +154,7 @@ int main()
     while(1)   
     {
         server_client_await_request(sockfd, dataPtr, &servaddr);
-        printf("This is what is in the data buffer: %s\n", dataPtr);
+//        printf("This is what is in the data buffer: %s\n", dataPtr);
 
         // start parser
         string jsonDataPacket(dataPtr);

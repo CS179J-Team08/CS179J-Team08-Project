@@ -116,7 +116,7 @@ if __name__ == '__main__':
     s = socket_server_init()
     conn = socket_server_accept_connection(s)
     server_client =  boto3.resource('s3')
-    bucket = "testing-pi"
+    bucket = "cs-audiofile-bucketdefault-default"
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)

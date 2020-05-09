@@ -19,7 +19,7 @@ class packetParser : public audioEngine
 {
 public:
 	void parseData(string packet);
-	void applyRequest();
+//	void applyRequest();
 	dataPacket getCurrentRequest() { return request; }
 
 private:

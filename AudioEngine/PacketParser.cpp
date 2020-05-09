@@ -1,5 +1,8 @@
 #include "PacketParser.h"
 #include <stdio.h>
+#include <cstring>
+
+using namespace std;
 
 void packetParser::parseData(string packet)
 {
@@ -7,19 +10,22 @@ void packetParser::parseData(string packet)
 
 	char *strtokState;
 	char *packetChar = new char[packet.size() + 1];
-	strcpy_s(packetChar, packet.size() + 1, packet.c_str());
+	strncpy(packetChar, packet.c_str(), packet.size() + 1);
 	const char *delim = "{}[]\':,\"";
-	char *token = strtok_s(packetChar, delim, &strtokState);
+	char *token = std::strtok(packetChar, delim/*, &strtokState*/);
 
 	string dir = "audio/";
 	char *prefix = new char[dir.size() + packet.size() + 1];
-	strcpy_s(prefix, dir.size() + packet.size() + 1, "audio/");
+	strncpy(prefix, "audio/", dir.size() + packet.size() + 1);
+        
+        string newPrefix(prefix);
+        cout << newPrefix << '\n';
 
 	vector<char *> packetData;
 	while (token)
 	{
 		packetData.push_back(token);
-		token = strtok_s(NULL, delim, &strtokState);
+		token = strtok(NULL, delim/*, &strtokState*/);
 	}
 
 	for (auto it = packetData.begin(); it != packetData.end(); it++)
@@ -35,9 +41,11 @@ void packetParser::parseData(string packet)
 		{
 			if (it + 1 != packetData.end() && strcmp(*(it + 1), "userID") != 0)
 			{
-				strcat_s(prefix, dir.size() + packet.size() + 1, *(it + 1));
-				request.filename = prefix;
+				//strncat(prefix, *(it + 1), dir.size() + packet.size() + 1);
+                                newPrefix.append(*it);
 			}
+                        cout << newPrefix << '\n';
+			request.filename = newPrefix.c_str();
 		}
 		else if (strcmp(*it, "play") == 0)
 		{
@@ -57,18 +65,20 @@ void packetParser::parseData(string packet)
 		{
 			if (it + 1 != packetData.end())
 			{
-				request.volume = stof(*(it + 1));
+                                // this is throwing an exception
+				//request.volume = stof(*(it + 1));
+                                cout << "error parsing volume, stof throwing exception\n";
 			}
 		}
 	}
-	
+/*	
 	for (auto it = request.usernames.begin(); it != request.usernames.end(); it++)
 	{
-		printf(*it);
-		printf("\n");
+		//printf(*it);
+		//printf("\n");
 	}
-	printf("%s", request.filename);
-	printf("\n");
+	//printf("%s", request.filename);
+	//printf("\n");
 	if (request.play)
 	{
 		printf("true\n");
@@ -78,9 +88,10 @@ void packetParser::parseData(string packet)
 		printf("false\n");
 	}
 	printf("%f", request.volume);
+*/
 	
 }
-
+/*
 void packetParser::applyRequest()
 {
 	auto inst = FMOD_Handler::instance();
@@ -123,3 +134,4 @@ void packetParser::applyRequest()
 		}
 	}
 }
+*/
