@@ -55,14 +55,14 @@ def socket_server_accept_connection(s):
     length = len(vaild_connection.decode())
     print (d)
     print("The current length of the vaild connection response " + str(length))
-    time.sleep(8)
+#    time.sleep(8)
     s.close()
     if not data: 
         print("Error receiving client data")
         sys.exit()
     else:
         conn.sendall(bytes(str(length), 'utf-8'))
-        time.sleep(5)
+ #       time.sleep(5)
         conn.sendall(vaild_connection)
         print ("Message sent to the client")
     return conn
@@ -92,9 +92,9 @@ def socket_server_respond_request(conn, fileName):
     reply = bytes(str(fileName), 'utf-8')
     length = len(reply.decode())
     print("Length of queue message: " + str(length))
-    time.sleep(5)
+  #  time.sleep(5)
     conn.sendall(bytes(str(length), 'utf-8'))
-    time.sleep(5)
+   # time.sleep(5)
     conn.sendall(reply)
 
 #The list_AWS_buckets method uses a boto3 client to print a list of the current bucket that exist on the S3 cloud service.

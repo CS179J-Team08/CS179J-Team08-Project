@@ -125,7 +125,7 @@ int main()
 	result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
 	printf("Result: %d\n", result);
 	printf("Message sent!\n");
-	sleep(5);
+//	sleep(5);
 
 	//Wait for the server's response 
 	server_client_await_request(sockfd, dataPtr, &servaddr);
