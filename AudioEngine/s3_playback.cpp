@@ -60,7 +60,6 @@ void server_client_await_request(int sockfd, char* dataBuffer, struct sockaddr_i
 		printf("Size of incoming stream: %d\n", n);
 		read(sockfd, dataBuffer, n);
 		dataBuffer[n] = '\0';
-		printf("Server: %s\n", dataBuffer);
 	}
 	printf("\n");
 }
@@ -130,7 +129,7 @@ int main()
 
 	//Wait for the server's response 
 	server_client_await_request(sockfd, dataPtr, &servaddr);
-
+	/*
 	//Initiate a request for file playback by sending a request
 	printf("Sending request for playback info\n");
 	sleep(5);
@@ -144,10 +143,17 @@ int main()
 	sleep(5);
 
 	//Now wait for the file to play
+	*/
+	printf("Listening to python server\n");
+	while(1)   {
 	server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("This is what is in the data buffer: %s\n", dataPtr);
 
 	string jsonFile = dataPtr;
+	printf("This is the entire message from the SQS queue\n", jsonFile);
+	}
+
+/*
 	if(verify_json_exists(jsonFile))   {
 		std::ifstream jsonStream(jsonFile);
 		jsonStream >> audio_options;
@@ -175,4 +181,5 @@ int main()
 	//At this point we loop the track infinitely. Use control + c to shutdown the program gracefully.
 	while (1) { ae->update(); }
 	return 0; 
+	*/
 }

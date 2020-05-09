@@ -1,14 +1,14 @@
 {
-   "group": {
-      "userID1": "",
-      "userID2": "",
-      "userID3": "",
-      "userID4": "",
-      "userID5": ""
-   },
-   "filename": "test.flac",
-   "play": false,
+   "group": [
+      {"userID": "TutorialTestQueue"},
+      {"userID": ""},
+      {"userID": ""},
+      {"userID": ""},
+      {"userID": ""}
+   ],
+   "filename": "Igorr- Downgrade Desert.flac",
+   "play": "false",
    "parameters":   {
-      "volume": 0.0
+      {"volume":0}
    }
 }

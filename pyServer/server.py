@@ -2,7 +2,8 @@ import boto3
 import sys
 import socket
 import time
-
+import json
+from receivePacket import await_SQS_response
 #Definitions of the HOST and PORT to use for the socket connection
 HOST = 'localhost'	# Symbolic name meaning all available interfaces
 PORT = 12345	# Arbitrary non-privileged port
@@ -88,11 +89,9 @@ def socket_server_await_request(conn):
 
 #This method is the response sent back to the c++ that initially requested a file for playback. It takes in the current connection and the fileName to send.
 def socket_server_respond_request(conn, fileName):
-    #reply = bytes(fileName, 'utf-8')
-    reply = bytes("testJson.json", 'utf-8')
+    reply = bytes(str(fileName), 'utf-8')
     length = len(reply.decode())
-    print("Length of JSON filename: " + str(length))
-    print(str(reply))
+    print("Length of queue message: " + str(length))
     time.sleep(5)
     conn.sendall(bytes(str(length), 'utf-8'))
     time.sleep(5)
@@ -141,7 +140,7 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
         if target_data[0] in obj.key:
             #If the string of the fileName exists in the obj.key then we have found the file we want
             #We call aws_download and pass the bucket we want to download from, the exact path to the file for download, and the user specified file name for the given download
-            fileName = aws_download(bucket_path, obj.key, target_data[1])
+            fileName = aws_download(bucket_path, obj.key, target_data[0])
             return fileName
     print ("file not found")
     return "file not found"
@@ -163,21 +162,26 @@ def bucket_menu():
 
 #Main function
 if __name__ == '__main__':
-    try:
-        #Initialize our socket and connection to None, then begin their initialization
-        s = None
-        conn = None
-        list_AWS_buckets()
-        s = socket_server_init()
-        conn = socket_server_accept_connection(s)
-        #Wait for a client request asking for file playback
-        socket_server_await_request(conn)
-        #Once acknowledged, we can begin our file download
-        fileName = bucket_menu()
-        #Now that we have a file for playback, send the name of the file over the socket connection
-        socket_server_respond_request(conn, fileName)
-        sys.exit()
+    #Initialize our socket and connection to None, then begin their initialization
+    s = None
+    conn = None
+    fileName = None
+    s = socket_server_init()
+    conn = socket_server_accept_connection(s)
+    server_client =  boto3.resource('s3')
+    bucket = "testing-pi"
+    bucket_obj = server_client.Bucket(bucket)
+    while 1:
+        try:
+           # socket_server_await_request(conn)
+            #Once acknowledged, we can begin our file download
+           # fileName = bucket_menu()
+            #Now that we have a file for playback, send the name of the file over the socket connection
+            sqs_response = await_SQS_response()
+            confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
+            socket_server_respond_request(conn, sqs_response[1])
+   # sys.exit()
 
 #This can shutdown gracefully if you press control + c.
-    except KeyboardInterrupt:
-        s.close()
+        except KeyboardInterrupt:
+            s.close()

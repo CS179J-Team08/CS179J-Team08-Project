@@ -32,7 +32,7 @@ def test_server_file_checker():
     s3 = boto3.resource('s3')
     bucketName = "testing-pi"
     fileName = "Igorrr- Downgrade Desert.flac"
-    storageResult = "test.flac"
+    storageResult = fileName
     pathName = "../AudioEngine/" + storageResult
     target_bucket = s3.Bucket(bucketName)
     target_data = (fileName, storageResult)
@@ -106,7 +106,7 @@ def test_server_file_request_response():
         server.bind(('localhost', 12345))
         server.listen(1)
         conn, addr = server.accept()
-        thread = threading.Thread(target=socket_server_respond_request, args=(conn, ""))
+        thread = threading.Thread(target=socket_server_respond_request, args=(conn, "testfile.txt"))
         thread.start()
         thread.join()
         server.close()
@@ -125,4 +125,4 @@ def test_server_file_request_response():
     thread.join()
     client_socket.close()
     assert datalen != None
-    assert data.decode() == "testJson.json"
+    assert data.decode() == "testfile.txt"
