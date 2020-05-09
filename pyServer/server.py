@@ -55,36 +55,15 @@ def socket_server_accept_connection(s):
     length = len(vaild_connection.decode())
     print (d)
     print("The current length of the vaild connection response " + str(length))
-#    time.sleep(8)
     s.close()
     if not data: 
         print("Error receiving client data")
         sys.exit()
     else:
         conn.sendall(bytes(str(length), 'utf-8'))
- #       time.sleep(5)
         conn.sendall(vaild_connection)
         print ("Message sent to the client")
     return conn
-
-#Similar to the accept connection method we wait until a response from the c++ program requesting a file for playback. We still use a similar method of receiving and sending responses as done in accept_connection
-def socket_server_await_request(conn):
-    response = bytes("Getting a file for playback", 'utf-8')
-    print("Awaitng next request")
-    d = conn.recv(1024)
-    data = d.decode()
-    length = len(response.decode())
-    print("The current length of response: " + str(length))
-    print(data)
-    time.sleep(5)
-    if not data: 
-        print("Error receiving client data")
-        sys.exit()
-    else:
-        conn.sendall(bytes(str(length), 'utf-8'))
-        time.sleep(5)
-        conn.sendall(bytes("Getting a file for playback", 'utf-8'))
-        print("Request acknowledged beginning file download")
 
 
 #This method is the response sent back to the c++ that initially requested a file for playback. It takes in the current connection and the fileName to send.
@@ -97,20 +76,6 @@ def socket_server_respond_request(conn, fileName):
    # time.sleep(5)
     conn.sendall(reply)
 
-#The list_AWS_buckets method uses a boto3 client to print a list of the current bucket that exist on the S3 cloud service.
-def list_AWS_buckets():
-    #Initialze the s3 client
-    s3 = boto3.client('s3')
-    #The list_buckets method returns a dict of the buckets that exist in S3
-    response = s3.list_buckets()
-    #Begin to iterate over the dict and buckets and print out the name of each bucket
-    print('Existing Buckets:')
-    for bucket in response['Buckets']:
-        #print(f'  {bucket["Name"]}')
-        name = "{}".format(bucket["Name"])
-        print(name)
-
-#The aws_download method takes in a bucketName to look at, a fileName that represent a file path to search for in the given bucket, and storageResult as the user specified file name for the resulting download to have.
 
 #Returns the storageResult string name
 def aws_download(bucketName, fileName, storageResult):
@@ -118,17 +83,12 @@ def aws_download(bucketName, fileName, storageResult):
     s3 = boto3.resource('s3')
     print(fileName)
     #Begin to download the specified fileName
-    path = "../AudioEngine/" + storageResult
+    path = "../AudioEngine/audio/" + storageResult
     s3.meta.client.download_file(bucketName, fileName, path)
     print(storageResult,"was downloaded successfully!")
     return storageResult
 
 
-#Request_data returns a tuple of the fileName as a string, and the storageResult for what to name the downloaded file
-def request_data():
-    fileName = input("Enter the file to download: ")
-    storageResult = input("What do you want to name the downloaded file: ")
-    return (fileName, storageResult)
 
 
 #confirm_file_is_vaild is method that takes in a bucket to target, the bucket as an object to iterate over, and a tuple called target_data that represents the fileName, and storageResult we want from a given bucket.
@@ -146,19 +106,6 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
     return "file not found"
 
 
-#bucket_menu runs the input and output needed for file downloads
-#Returns a fileName of the file that was downloaded named by the user.
-def bucket_menu():
-    s3 = boto3.resource('s3')
-    list_AWS_buckets()
-    bucket_path = input("Which bucket do you want to look into?: ")
-    target_bucket = s3.Bucket(bucket_path)
-    for obj in target_bucket.objects.all():
-        print(obj)
-    target_data = request_data()
-    fileName = confirm_file_is_vaild(bucket_path, target_bucket, target_data)
-    return fileName
-
 
 #Main function
 if __name__ == '__main__':
@@ -170,17 +117,16 @@ if __name__ == '__main__':
     conn = socket_server_accept_connection(s)
     server_client =  boto3.resource('s3')
     bucket = "testing-pi"
-    bucket_obj = server_client.Bucket(bucket)
     while 1:
         try:
-           # socket_server_await_request(conn)
-            #Once acknowledged, we can begin our file download
-           # fileName = bucket_menu()
-            #Now that we have a file for playback, send the name of the file over the socket connection
+            bucket_obj = server_client.Bucket(bucket)
             sqs_response = await_SQS_response()
-            confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
-            socket_server_respond_request(conn, sqs_response[1])
-   # sys.exit()
+            if sqs_response[4] == True:
+                confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
+                socket_server_respond_request(conn, sqs_response[1])
+            else:
+                print("Error the received JSON from SQS is invaild")
+                print("Waiting for the next request before sending data to the audio engine")
 
 #This can shutdown gracefully if you press control + c.
         except KeyboardInterrupt:
