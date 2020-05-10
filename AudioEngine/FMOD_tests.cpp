@@ -104,14 +104,27 @@ TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDS
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new dspEngine();
-	//a->init();
-	//a->addSystem("Test Add");
+	// Add One, Remove One
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	auto mDSPIt = inst->_mDSP.find("Test Add");
 	REQUIRE(mDSPIt == inst->_mDSP.end());
-
 	a->removeDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	REQUIRE(inst->_mDSP.empty());
+	
+	// Add One, "Remove All"
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_PARAMEQ);
+	mDSPIt = inst->_mDSP.find("Test Add");
+	REQUIRE(mDSPIt == inst->_mDSP.end());
+	a->removeAllDSPEffectsInSystem("Test Add");
+	REQUIRE(inst->_mDSP.empty());
+	
+	// Add Multiple, "Remove All"
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_MIXER);
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_ECHO);
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_CHORUS);
+	a->removeAllDSPEffectsInSystem("Test Add");
+	REQUIRE(inst->_mDSP.empty());
+	
 }
 
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
