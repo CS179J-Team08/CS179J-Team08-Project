@@ -1,5 +1,6 @@
 
 NAME = audio_test
+EXE = cloud_sound
 
 ifndef CPU
     $(error Specify CPU=[x86|x86_64|arm|armhf])
@@ -20,7 +21,7 @@ else
 endif
 
 ifeq (${CONFIG}, Debug)
-    FLAGS += -g
+    FLAGS += -g 
     SUFFIX = L
 else
     override CONFIG = Release
@@ -32,10 +33,18 @@ SOURCE_FILES = \
     FMOD_tests.cpp \
     AudioEngine.cpp \
 
+BUILD_FILES = \
+    s3_playback.cpp \
+    AudioEngine.cpp \
+    PacketParser.cpp \
+
 INCLUDE_DIRS = \
     -I fmodstudioapi20100linux/api/core/inc
 
 LOWLEVEL_LIB = fmodstudioapi20100linux/api/core/lib/${CPU}/libfmod${SUFFIX}.so
 
-all:
-	g++ -pthread ${FLAGS} -o ${NAME} ${SOURCE_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
+test:
+	g++ -std=c++11 -pthread ${FLAGS} -o ${NAME} ${SOURCE_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
+
+build:
+	g++ -std=c++11 -pthread ${FLAGS} -o ${EXE} ${BUILD_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}

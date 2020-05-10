@@ -274,6 +274,21 @@ void audioEngine::togglePauseOnChannel(string systemID, int channelID)
 	}
 }
 
+void audioEngine::setPauseOnChannel(string systemID, int channelID, bool pause)
+{
+	auto inst = FMOD_Handler::instance();
+	auto dChannelIt = inst->_dChannels.find(systemID);
+
+	if (dChannelIt != inst->_dChannels.end())
+	{
+		auto mChannelIt = dChannelIt->second.find(channelID);
+		if (mChannelIt != dChannelIt->second.end())
+		{
+			mChannelIt->second->setPaused(pause);
+		}
+	}
+}
+
 void audioEngine::setChannelVolume(string systemID, int channelID, float fVolumedB)
 {
 	auto inst = FMOD_Handler::instance();
@@ -283,8 +298,21 @@ void audioEngine::setChannelVolume(string systemID, int channelID, float fVolume
 		auto mChannelIt = dChannelIt->second.find(channelID);
 		if (mChannelIt != dChannelIt->second.end())
 		{
-			float linearVolume = dbToVolume(fVolumedB);
-			errorCheck(mChannelIt->second->setVolume(linearVolume));
+			float currentVolume;
+			mChannelIt->second->getVolume(&currentVolume);
+			currentVolume = volumeTodb(currentVolume);
+			float newVolume = currentVolume + fVolumedB;
+			if (newVolume < 0.0)
+			{
+				newVolume = 0.0;
+			}
+			else if (newVolume > 95.0)
+			{
+				newVolume = 95.0;
+			}
+
+			newVolume = dbToVolume(newVolume);
+			errorCheck(mChannelIt->second->setVolume(newVolume));
 		}
 	}
 }
@@ -486,20 +514,12 @@ int main()
 	auto de = new dspEngine();
 	ae->init();
 	ae->addSystem(n);
-	ae->addSystem(n1);
 	ae->loadSound(n, m, true, true, false);
-	ae->loadSound(n1, p, true, false, false);
 	int id = ae->aePlaySound(n, m);
-	int id2 = ae->aePlaySound(n1, p);
 	ae->setChannelVolume(n, id, 0);
-	ae->setChannelVolume(n1, id2, 0);
-	de->addDSPEffect(n, FMOD_DSP_TYPE_FLANGE);
-	de->addDSPEffect(n1, FMOD_DSP_TYPE_ECHO);
-	de->addDSPEffect(n1, FMOD_DSP_TYPE_CHORUS);
-	ae->togglePauseOnChannel(n, id);
-	ae->togglePauseOnChannel(n1, id2);
-	de->removeAllDSPEffectsInSystem(n);
-	de->removeAllDSPEffectsInSystem(n1);
+	ae->setPauseOnChannel(n, id, true);
+	ae->setPauseOnChannel(n, id, false);
+
 	while (1) { ae->update(); }
 	return 0;
 }

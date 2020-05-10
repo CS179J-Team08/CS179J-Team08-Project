@@ -37,8 +37,23 @@ jobs:
          name: Install CMAKE
          command: 'apt-get update && sudo apt-get install -y cmake'
       - run:
+          name: Installing Python3.5
+          command: 'apt-get install python3-dev -y'
+      - run:
+          name: Installing pip3
+          command: "apt-get install python3-pip -y"
+      - run:
+          name: Installing boto3
+          command: "pip3 install boto3"
+      - run:
+          name: Installing pytest
+          command: "pip3 install pytest"
+      - run:
           name: Creating Binary Files
-          command: 'cd AudioEngine/ && make CPU=X86 CONFIG=Debug'
+          command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug'
       - run:
           name: Point Unit Testing
           command: 'cd AudioEngine/ && ./audio_test'
+      - run:
+          name: Run server.py unit tests
+          command: "cd pyServer/ && pytest"

@@ -51,7 +51,7 @@ TEST_CASE("FMOD System addition and removal", "[FMOD::System]")
 	}	
 }
 
-TEST_CASE("Testing load and unload of sounds","[FMOD::Sound]")
+TEST_CASE("Loading and unloading of sounds", "[FMOD::Sound]")
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new audioEngine();
@@ -71,4 +71,55 @@ TEST_CASE("Testing load and unload of sounds","[FMOD::Sound]")
 	a->unloadSound("Test Load", "audio/jaguar.wav");
 	mSoundsIt = dSoundsIt->second.find("audio/jaguar.wav");
 	REQUIRE(mSoundsIt == dSoundsIt->second.end());
+}
+
+TEST_CASE("Create Channel via aePlaySound and unload channels", "[FMOD::System::playSound]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new audioEngine();
+	a->addSystem("Test aePlaySound");
+	int channel1 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+	int channel2 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+	int channel3 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+
+	auto mChannelIt1 = inst->_dChannels["Test aePlaySound"].find(channel1);
+	auto mChannelIt2 = inst->_dChannels["Test aePlaySound"].find(channel2);
+	auto mChannelIt3 = inst->_dChannels["Test aePlaySound"].find(channel3);
+	REQUIRE(mChannelIt1 != inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt2 != inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt3 != inst->_dChannels["Test aePlaySound"].end());
+	
+	a->unloadChannel("Test aePlaySound", channel1);
+	mChannelIt1 = inst->_dChannels["Test aePlaySound"].find(channel1);
+	REQUIRE(mChannelIt1 == inst->_dChannels["Test aePlaySound"].end());
+
+	a->unloadAllChannelsInSystem("Test aePlaySound");
+	mChannelIt2 = inst->_dChannels["Test aePlaySound"].find(channel2);
+	mChannelIt3 = inst->_dChannels["Test aePlaySound"].find(channel3);
+	REQUIRE(mChannelIt2 == inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt3 == inst->_dChannels["Test aePlaySound"].end());
+}
+
+TEST_CASE("Volume test", "[ChannelControl::getVolume]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new audioEngine();
+	a->addSystem("Test Volume");
+	int channel = a->aePlaySound("Test Volume", "audio/jaguar.wav");
+	a->setPauseOnChannel("Test Volume", channel, true);
+	
+	a->setChannelVolume("Test Volume", channel, 20.0);	
+	auto dChannelIt = inst->_dChannels.find("Test Volume");
+	auto mChannelIt = dChannelIt->second.find(channel);
+	float volume;
+	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
+	REQUIRE(volume == 10.0);
+
+	a->setChannelVolume("Test Volume", channel, -20.0);
+	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
+	REQUIRE(volume == 1.0);
+
+	a->setChannelVolume("Test Volume", channel, 1000);
+	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
+	REQUIRE(volume == 56234.13251f);
 }

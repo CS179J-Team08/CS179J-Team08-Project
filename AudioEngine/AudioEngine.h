@@ -71,6 +71,7 @@ public:
 	void unloadChannel(string systemID, int channelID); //Can also be used to preemptively stop sound from a channel
 	void unloadAllChannelsInSystem(string systemID); //Unload channels in a GIVEN system, not in ALL systems
 	void togglePauseOnChannel(string systemID, int channelID);
+	void setPauseOnChannel(string systemID, int channelID, bool pause);
 	void setChannelVolume(string systemID, int channelID, float fVolumedB);
 	bool aeIsPlaying(string systemID, int channelID) const; //distinct from FMOD_Channel's isPlaying
 
