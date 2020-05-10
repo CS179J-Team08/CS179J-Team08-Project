@@ -37,7 +37,6 @@ pcm.51to20
 				description "Virtual device that downmixes 5.1 surround to 2.0 stereo sound"
 	}
 } 
-<<<<<<< HEAD
 
 pcm.20to51
 {
@@ -69,5 +68,3 @@ pcm.20to51
 				description "Virtual device that downmixes 2.0 stereo to 5.1 surround sound"
 	}
 } 
-=======
->>>>>>> e65c2254e9b8c219cc8f560b68617c9b7fee07fa
