@@ -1,0 +1,39 @@
+pcm.!default {
+	type hw
+	card 0
+}
+ctl.!default {
+	type hw
+	card 0
+}
+
+pcm.51to20
+{
+	type route
+	slave.pcm default
+	slave.channels 2
+
+	# Front and rear, at 33% of original signal strength
+	ttable.0.0 0.33
+	ttable.1.1 0.33
+	ttable.2.0 0.33
+	ttable.3.1 0.33
+	
+	# Center channel routing (routed to front-left and front-right),
+	# 6dB gain (gain half of main channels) per channel
+	ttable.4.0 0.16
+	ttable.4.1 0.16
+	
+	# LFE channel routing (routed to front-left & front-right),
+	# 6dB gain (gain half of main channels) per channel
+	ttable.5.0 0.16
+	ttable.5.1 0.16
+	
+	hint {
+			show {
+					@func refer
+					name defaults.namehint.extended
+			}
+				description "Virtual device that downmixes 5.1 surround to 2.0 stereo sound"
+	}
+} 
