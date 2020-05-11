@@ -35,11 +35,14 @@ public:
 	typedef map<string, _ChannelMap> _ChannelDirectory; //left: System the ChannelMap is set to
 													    //right: Map of channels for a given system
 
+        typedef map<string, int> _AudioToChannel;                 //Maps the audio file name to the channel it is playing on
+  
 	typedef multimap<string, FMOD::DSP*> _dspMap; //Container for DSP effects in a system
 												  //Distinguish between the DSP effects by searching with DSP::getType
 
 	_SystemMap _mSystems;
 	_ChannelDirectory _dChannels;
+        _AudioToChannel _mAudioToChannel;
 	_SoundDirectory _dSounds;
 	_dspMap _mDSP;
 	

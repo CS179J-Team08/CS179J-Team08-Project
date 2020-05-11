@@ -153,8 +153,9 @@ if __name__ == '__main__':
             sqs_response = await_SQS_response(message_queue)
             if sqs_response[4] == True:
                 confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
-                #socket_server_respond_request(conn, sqs_response[1])
-                socket_server_respond_request(conn, sqs_response[0])
+                print(sqs_response[1])
+                socket_server_respond_request(conn, sqs_response[1])
+                #socket_server_respond_request(conn, sqs_response[0])
             else:
                 print("Error the received JSON from SQS is invaild")
                 print("Waiting for the next request before sending data to the audio engine")
