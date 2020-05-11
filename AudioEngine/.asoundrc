@@ -1,10 +1,56 @@
 pcm.!default {
-	type hw
-	card 0
+	type asym
+	playback.pcm {
+		type plug
+		slave.pcm "output"
+	}
+	capture.pcm {
+		type plug
+		slave.pcm "input"
+	}
 }
+
+pcm.combo {
+	type route;
+	slave.pcm {
+		type multi;
+		slaves.a.pcm "ankerbt";		# Anker SoundCore
+		slaves.b.pcm "atbt";		# Audio Technica BT headphones
+		
+		slaves.a.channels 2;		# 2 speaker channels per device
+		slaves.b.channels 2;
+		
+		bindings.0.slave a;			# a deals with front left and right
+		bindings.0.channel 0;
+		bindings.1.slave a;
+		bindings.1.channel 1;
+		
+		bindings.2.slave b;			# b deals with rear left and right
+		bindings.2.channel 0;
+		bindings.3.slave b;
+		bindings.3.channel 1;
+		}
+		
+	ttable.0.0 1;					# mapping speakers to where they
+	ttable.1.1 1;					# should go, and giving them full
+	ttable.2.2 1;					# volume
+	ttable.3.3 1;
+
+}
+
+ctl.combo {
+	type hw;
+	card 0;
+}
+
+pcm.output {
+	type bluealsa
+	device "A0:E9:DB:09:19:D6"
+	profile "a2dp"
+}
+
 ctl.!default {
-	type hw
-	card 0
+	type bluealsa
 }
 
 pcm.51to20
@@ -37,7 +83,6 @@ pcm.51to20
 				description "Virtual device that downmixes 5.1 surround to 2.0 stereo sound"
 	}
 } 
-<<<<<<< HEAD
 
 pcm.20to51
 {
@@ -69,5 +114,3 @@ pcm.20to51
 				description "Virtual device that downmixes 2.0 stereo to 5.1 surround sound"
 	}
 } 
-=======
->>>>>>> e65c2254e9b8c219cc8f560b68617c9b7fee07fa
