@@ -8,17 +8,16 @@
 		}
 	},
 	"api": {
-		"fileApi": {
+		"AudioFileAPI": {
 			"service": "AppSync",
 			"providerPlugin": "awscloudformation",
 			"output": {
 				"authConfig": {
 					"additionalAuthenticationProviders": [],
 					"defaultAuthentication": {
-						"authenticationType": "API_KEY",
-						"apiKeyConfig": {
-							"description": "",
-							"apiKeyExpirationDays": 7
+						"authenticationType": "AMAZON_COGNITO_USER_POOLS",
+						"userPoolConfig": {
+							"userPoolId": "authcompanionapp3b27d937"
 						}
 					}
 				}

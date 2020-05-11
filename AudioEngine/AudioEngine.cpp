@@ -33,16 +33,20 @@ FMOD_Handler *FMOD_Handler::instance()
 //Their keys correspond to the systemID
 void FMOD_Handler::addSystem(string systemID)
 {
-	FMOD::System *newSystem = NULL;
-	audioEngine::errorCheck(FMOD::System_Create(&newSystem));
-	audioEngine::errorCheck(newSystem->init(512, FMOD_INIT_NORMAL, 0));
-	_mSystems[systemID] = newSystem;
+        auto mSystemIt = _mSystems.find(systemID);
+        if(mSystemIt == _mSystems.end())
+        {
+	        FMOD::System *newSystem = NULL;
+	        audioEngine::errorCheck(FMOD::System_Create(&newSystem));
+	        audioEngine::errorCheck(newSystem->init(512, FMOD_INIT_NORMAL, 0));
+	        _mSystems[systemID] = newSystem;
 
-	_ChannelMap newChannelMap;
-	_dChannels[systemID] = newChannelMap;
+	        _ChannelMap newChannelMap;
+	        _dChannels[systemID] = newChannelMap;
 
-	_SoundMap newSoundMap;
-	_dSounds[systemID] = newSoundMap;
+	        _SoundMap newSoundMap;
+	        _dSounds[systemID] = newSoundMap;
+        }
 }
 
 //Removes system and all associated channels and sounds
