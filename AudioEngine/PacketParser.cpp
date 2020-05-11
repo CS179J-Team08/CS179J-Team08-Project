@@ -86,7 +86,7 @@ void packetParser::parseData(string packet)
 */
 	
 }
-/*
+
 void packetParser::applyRequest()
 {
 	auto inst = FMOD_Handler::instance();
@@ -129,4 +129,6 @@ void packetParser::applyRequest()
 		}
 	}
 }
-*/
+
+
+
