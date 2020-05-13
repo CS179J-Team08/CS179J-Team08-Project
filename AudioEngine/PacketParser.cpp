@@ -61,7 +61,7 @@ void packetParser::parseData(string packet)
 			if (it + 1 != packetData.end())
 			{
                                 // this is throwing an exception
-				request.volume = stof(*(it + 2));
+				request.volume = stof(*(it + 1));
 //                                cout << "error parsing volume, stof throwing exception\n";
 			}
 		}

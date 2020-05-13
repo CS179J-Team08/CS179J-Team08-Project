@@ -13,13 +13,21 @@ from server import socket_server_init
 from server import socket_server_accept_connection
 from server import confirm_file_is_vaild
 from server import socket_server_respond_request
+from server import aws_download
 
 def test_initalization():
     s = None
     s = socket_server_init()
     assert s != None
 
-def test_server_file_checker():
+def test_server_file_already_exists():
+    s3 = boto3.resource('s3')
+    bucketName = "testing-pi"
+    fileName = "drumloop.wav"
+    storageResult = fileName
+    assert aws_download(bucketName, fileName, storageResult) == "file already exists"
+
+#def test_server_file_checker():
     s3 = boto3.resource('s3')
     bucketName = "testing-pi"
     fileName = "Igorrr- Downgrade Desert.flac"

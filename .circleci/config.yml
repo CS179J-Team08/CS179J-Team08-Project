@@ -50,10 +50,10 @@ jobs:
           command: "pip3 install pytest"
       - run:
           name: Creating Binary Files
-          command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug'
+          command: 'cd AudioEngine/ && make test CPU=X86 CONFIG=Debug && make build CPU=X86 CONFIG=Release'
       - run:
           name: Point Unit Testing
-          command: 'cd AudioEngine/ && ./audio_test'
+          command: 'cd AudioEngine/ && ./audio_test && ./parse_test'
       - run:
           name: Run server.py unit tests
           command: "cd pyServer/ && pytest"

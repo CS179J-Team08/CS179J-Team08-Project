@@ -1,5 +1,6 @@
 
 NAME = audio_test
+PARSE = parse_test
 EXE = cloud_sound
 
 ifndef CPU
@@ -33,6 +34,11 @@ SOURCE_FILES = \
     FMOD_tests.cpp \
     AudioEngine.cpp \
 
+PACKET_FILES = \
+    Packet_Parser_tests.cpp \
+    PacketParser.cpp \
+    AudioEngine.cpp \
+
 BUILD_FILES = \
     s3_playback.cpp \
     AudioEngine.cpp \
@@ -45,6 +51,7 @@ LOWLEVEL_LIB = fmodstudioapi20100linux/api/core/lib/${CPU}/libfmod${SUFFIX}.so
 
 test:
 	g++ -std=c++11 -pthread ${FLAGS} -o ${NAME} ${SOURCE_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
+	g++ -std=c++11 -pthread ${FLAGS} -o ${PARSE} ${PACKET_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
 
 build:
 	g++ -std=c++11 -pthread ${FLAGS} -o ${EXE} ${BUILD_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
