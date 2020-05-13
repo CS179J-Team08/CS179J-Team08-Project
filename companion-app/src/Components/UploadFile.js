@@ -48,16 +48,16 @@ class UploadFile extends Component {
           Filename: "",
           playValue: "true",
           stop: "false",
-          volume: 0.0,
+          volume: "0.0",
           eqapply: "false",
-          eqlowgain: 0.0,
-          eqmidgain: 0.0,
-          eqhighgain: 0.0,
+          eqlowgain: "0.0",
+          eqmidgain: "0.0",
+          eqhighgain: "0.0",
           echoapply: "false",
-          echodelay: 10.0,
-          echofeedback: 0.0,
-          echodry: 0.0,
-          echowet: 0.0
+          echodelay: "10.0",
+          echofeedback: "0.0",
+          echodry: "0.0",
+          echowet: "0.0"
         };
 
         this.updatePlayState = this.updatePlayState.bind(this);
@@ -171,7 +171,11 @@ class UploadFile extends Component {
       }
 
       applyEq(event) {
-        this.setState({ eqapply: event.target.checked });
+        if(event.target.checked) {
+          this.setState({ eqapply: "true" });
+        } else {
+          this.setState({ eqapply: "false" });
+        }
       }
 
       updateLowEq(event) {
@@ -187,7 +191,11 @@ class UploadFile extends Component {
       }
 
       applyEcho(event) {
-        this.setState({ echoapply: event.target.checked });
+        if(event.target.checked) {
+          this.setState({ echoapply: "true" });
+        } else {
+          this.setState({ echoapply: "false" });
+        }
       }
 
       updateEchoDelay(event) {
