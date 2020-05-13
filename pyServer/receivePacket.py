@@ -65,7 +65,8 @@ def sqs_init():
 #Description: This method is a used as a way to vailidate the message input coming in from the SQS queue. This is a first line of defense to ensure that our programs requiring this data can operate properly and as intended
 
 def verify_data(queue_data):
-    if queue_data[2].isnumeric() == False:
+    float_str = queue_data[2]
+    if  str(float_str).replace('.','', 1).isdigit() == False:
         return False
     elif queue_data[1] != "false" and queue_data[1] != "true":
         return False

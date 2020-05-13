@@ -3,6 +3,8 @@ import sys
 import socket
 import time
 import json
+import os.path
+from os import path
 from receivePacket import await_SQS_response
 from receivePacket import sqs_init
 #Definitions of the HOST and PORT to use for the socket connection
@@ -107,11 +109,14 @@ def aws_download(bucketName, fileName, storageResult):
     s3 = boto3.resource('s3')
     print(fileName)
     #Begin to download the specified fileName
-    download_path = "publc/" + fileName
-    path = "../AudioEngine/audio/" + storageResult
-    s3.meta.client.download_file(bucketName, fileName, path)
-    print(storageResult,"was downloaded successfully!")
-    return storageResult
+    storage_path = "../AudioEngine/audio/" + storageResult
+    if path.exists(storage_path) == False:
+        s3.meta.client.download_file(bucketName, fileName, storage_path)
+        print(storageResult,"was downloaded successfully!")
+        return storageResult
+    else:
+        print("The requested file already exists in the system")
+        return "file already exists"
 
 
 
