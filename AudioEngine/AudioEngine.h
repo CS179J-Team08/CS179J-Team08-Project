@@ -35,14 +35,14 @@ public:
 	typedef map<string, _ChannelMap> _ChannelDirectory; //left: System the ChannelMap is set to
 													    //right: Map of channels for a given system
 
-        typedef map<string, int> _AudioToChannel;                 //Maps the audio file name to the channel it is playing on
-  
+	typedef map<string, int> _AudioToChannel;           //maps the audio file name to the channel it is playing on
+
 	typedef multimap<string, FMOD::DSP*> _dspMap; //Container for DSP effects in a system
 												  //Distinguish between the DSP effects by searching with DSP::getType
 
 	_SystemMap _mSystems;
 	_ChannelDirectory _dChannels;
-        _AudioToChannel _mAudioToChannel;
+	_AudioToChannel _mAudioToChannel;
 	_SoundDirectory _dSounds;
 	_dspMap _mDSP;
 	
@@ -70,8 +70,8 @@ public:
 
 	void loadSound(string systemID, const string& strSoundName, bool b3d = true, bool bLooping = false, bool bStream = false);
 	void unloadSound(string systemID, const string& strSoundName);
-	int aePlaySound(string systemID, const string& strSoundName, FMOD_VECTOR vec3 = FMOD_VECTOR{ 0, 0, 0 }, float fVolumedB = 0.0f); //Distinct from FMOD_Channel's playSound
-	void unloadChannel(string systemID, int channelID); //Can also be used to preemptively stop sound from a channel
+	int aePlaySound(string systemID, const string& strSoundName, float fVolumedB = 0.0f); //Distinct from FMOD_Channel's playSound
+	void unloadChannel(string systemID, string strSoundName, int channelID); //Can also be used to preemptively stop sound from a channel
 	void unloadAllChannelsInSystem(string systemID); //Unload channels in a GIVEN system, not in ALL systems
 	void togglePauseOnChannel(string systemID, int channelID);
 	void setPauseOnChannel(string systemID, int channelID, bool pause);
@@ -90,7 +90,8 @@ public:
 	void stopAllDSPEffectsInSystem(string systemID);
 	void removeDSPEffect(string systemID, FMOD_DSP_TYPE dspType);
 	void removeAllDSPEffectsInSystem(string systemID);
-
+	void setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float delay, float feedback, float dry, float wet);
+	void setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain);
 
 private:
 	inline bool checkIndex(int index, int limit);
