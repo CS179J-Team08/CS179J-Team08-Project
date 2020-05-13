@@ -89,7 +89,7 @@ TEST_CASE("Create Channel via aePlaySound and unload channels", "[FMOD::System::
 	REQUIRE(mChannelIt2 != inst->_dChannels["Test aePlaySound"].end());
 	REQUIRE(mChannelIt3 != inst->_dChannels["Test aePlaySound"].end());
 	
-	a->unloadChannel("Test aePlaySound", channel1);
+	a->unloadChannel("Test aePlaySound", "audio/jaguar.wav", channel1);
 	mChannelIt1 = inst->_dChannels["Test aePlaySound"].find(channel1);
 	REQUIRE(mChannelIt1 == inst->_dChannels["Test aePlaySound"].end());
 
