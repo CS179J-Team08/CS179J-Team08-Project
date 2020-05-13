@@ -36,13 +36,15 @@ public:
 													    //right: Map of channels for a given system
 
 	typedef map<string, int> _AudioToChannel;           //maps the audio file name to the channel it is playing on
-
+        typedef map<int, string> _ChannelToAudio;
+  
 	typedef multimap<string, FMOD::DSP*> _dspMap; //Container for DSP effects in a system
 												  //Distinguish between the DSP effects by searching with DSP::getType
 
 	_SystemMap _mSystems;
 	_ChannelDirectory _dChannels;
 	_AudioToChannel _mAudioToChannel;
+        _ChannelToAudio _mChannelToAudio;
 	_SoundDirectory _dSounds;
 	_dspMap _mDSP;
 	
@@ -71,7 +73,7 @@ public:
 	void loadSound(string systemID, const string& strSoundName, bool b3d = true, bool bLooping = false, bool bStream = false);
 	void unloadSound(string systemID, const string& strSoundName);
 	int aePlaySound(string systemID, const string& strSoundName, float fVolumedB = 0.0f); //Distinct from FMOD_Channel's playSound
-	void unloadChannel(string systemID, string strSoundName, int channelID); //Can also be used to preemptively stop sound from a channel
+	void unloadChannel(string systemID, int channelID); //Can also be used to preemptively stop sound from a channel
 	void unloadAllChannelsInSystem(string systemID); //Unload channels in a GIVEN system, not in ALL systems
 	void togglePauseOnChannel(string systemID, int channelID);
 	void setPauseOnChannel(string systemID, int channelID, bool pause);
