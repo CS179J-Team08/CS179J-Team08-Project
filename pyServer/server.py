@@ -109,10 +109,9 @@ def aws_download(bucketName, fileName, storageResult):
     s3 = boto3.resource('s3')
     print(fileName)
     #Begin to download the specified fileName
-    download_path = "publc/" + fileName
     storage_path = "../AudioEngine/audio/" + storageResult
     if path.exists(storage_path) == False:
-        s3.meta.client.download_file(bucketName, fileName, path)
+        s3.meta.client.download_file(bucketName, fileName, storage_path)
         print(storageResult,"was downloaded successfully!")
         return storageResult
     else:
