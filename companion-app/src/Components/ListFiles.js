@@ -9,7 +9,7 @@ export default class ListFiles extends Component {
 
         this.state = {
             fileList: ['No Files Uploaded'],
-            fileToDelete: ""
+            fileToDelete: "No File"
         }
 
         this.updateFileList = this.updateFileList.bind(this);
@@ -32,25 +32,40 @@ export default class ListFiles extends Component {
     deleteFile = async (event) => {
         event.preventDefault();
 
-        const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
-        const items = audioFiles.data.listAudios.items;
-        var fileID;
+        if(this.state.fileToDelete === "No File") {
+            console.log("no file was specified");
+        } else {
+            // get list of all files in database
+            const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
+            const items = audioFiles.data.listAudios.items;
+            var fileID = "No ID";
 
-        for (const i in items) {
-            if(items[i].name == this.state.fileToDelete) {
-                fileID = items[i].id;
+            // find id of file that needs to be deleted
+            for (const i in items) {
+                if(items[i].name == this.state.fileToDelete) {
+                    fileID = items[i].id;
+                }
             }
-        }
 
-        const audioDetails = {
-            id: fileID
-        }
-        
-        const deletedFile = API.graphql(graphqlOperation(mutations.deleteAudio, {input: audioDetails}));
+            if(fileID === "No ID") {
+                console.log("file does not exist");
+            } else {
 
-        Storage.remove(this.state.fileToDelete)
-            .then(result => console.log(result))
-            .catch(err => console.log(err));
+                const audioDetails = {
+                    id: fileID
+                }
+                
+                // delete file from database
+                const deletedFile = API.graphql(graphqlOperation(mutations.deleteAudio, {input: audioDetails}));
+
+                // remove file from S3
+                Storage.remove(this.state.fileToDelete)
+                    .then(result => console.log(result))
+                    .catch(err => console.log(err));
+
+                this.setState({ fileToDelete: "No File" });
+            }
+        }   
     }
 
     render() {
