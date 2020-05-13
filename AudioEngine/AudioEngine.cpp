@@ -1,7 +1,7 @@
 #include "AudioEngine.h"
 
 
-FMOD_Handler::FMOD_Handler() 
+FMOD_Handler::FMOD_Handler()
 {
 	//_system = NULL;
 	//audioEngine::errorCheck(FMOD::System_Create(&_system));
@@ -33,20 +33,20 @@ FMOD_Handler *FMOD_Handler::instance()
 //Their keys correspond to the systemID
 void FMOD_Handler::addSystem(string systemID)
 {
-        auto mSystemIt = _mSystems.find(systemID);
-        if(mSystemIt == _mSystems.end())
-        {
-	        FMOD::System *newSystem = NULL;
-	        audioEngine::errorCheck(FMOD::System_Create(&newSystem));
-	        audioEngine::errorCheck(newSystem->init(512, FMOD_INIT_NORMAL, 0));
-	        _mSystems[systemID] = newSystem;
+	auto mSystemIt = _mSystems.find(systemID);
+	if (mSystemIt == _mSystems.end())
+	{
+		FMOD::System *newSystem = NULL;
+		audioEngine::errorCheck(FMOD::System_Create(&newSystem));
+		audioEngine::errorCheck(newSystem->init(512, FMOD_INIT_NORMAL, 0));
+		_mSystems[systemID] = newSystem;
 
-	        _ChannelMap newChannelMap;
-	        _dChannels[systemID] = newChannelMap;
+		_ChannelMap newChannelMap;
+		_dChannels[systemID] = newChannelMap;
 
-	        _SoundMap newSoundMap;
-	        _dSounds[systemID] = newSoundMap;
-        }
+		_SoundMap newSoundMap;
+		_dSounds[systemID] = newSoundMap;
+	}
 }
 
 //Removes system and all associated channels and sounds
@@ -82,7 +82,7 @@ void FMOD_Handler::update()
 {
 	vector<_ChannelMap::iterator> channelsToFree;
 
-	for (auto dirIt = _dChannels.begin(); dirIt!= _dChannels.end(); dirIt++)
+	for (auto dirIt = _dChannels.begin(); dirIt != _dChannels.end(); dirIt++)
 	{
 		for (auto mapIt = dirIt->second.begin(); mapIt != dirIt->second.end(); mapIt++)
 		{
@@ -182,7 +182,7 @@ void audioEngine::unloadSound(string systemID, const string &strSoundName)
 
 //The volume level should be sent in as decibels.
 //The typical decibel level of a normal conversation is 60dB, and a lawnmower is 90dB
-int audioEngine::aePlaySound(string systemID, const string& strSoundName, FMOD_VECTOR vec3, float fVolumedB)
+int audioEngine::aePlaySound(string systemID, const string& strSoundName, float fVolumedB)
 {
 	auto inst = FMOD_Handler::instance();
 	int channelID = inst->getNextChannelID();
@@ -210,22 +210,23 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, FMOD_V
 		audioEngine::errorCheck(soundIt->second->getMode(&modeMask));
 
 		//Set 3d position if the sound has the 3D attribute
+		/*
 		if (modeMask & FMOD_3D)
 		{
 			audioEngine::errorCheck(playChannel->set3DAttributes(&vec3, nullptr));
 		}
-
+		*/
 		//setVolume expects a linear volume level, not dB.
 		audioEngine::errorCheck(playChannel->setVolume(dbToVolume(fVolumedB)));
 		audioEngine::errorCheck(playChannel->setPaused(false));
-		
+
 		inst->_dChannels[systemID][channelID] = playChannel;
 	}
 
 	return channelID;
 }
 
-void audioEngine::unloadChannel(string systemID, int channelID)
+void audioEngine::unloadChannel(string systemID, string strSoundName,  int channelID)
 {
 	auto inst = FMOD_Handler::instance();
 	auto dChannelIt = inst->_dChannels.find(systemID);
@@ -236,6 +237,7 @@ void audioEngine::unloadChannel(string systemID, int channelID)
 		{
 			audioEngine::errorCheck(mChannelIt->second->stop());
 			inst->_dChannels[systemID].erase(mChannelIt);
+			inst->_mAudioToChannel.erase(strSoundName);
 		}
 	}
 }
@@ -253,7 +255,7 @@ void audioEngine::unloadAllChannelsInSystem(string systemID)
 			errorCheck(mapIt->second->stop());
 			channelsToFree.push_back(mapIt);
 		}
-		
+
 		for (auto ctfIt = channelsToFree.begin(); ctfIt != channelsToFree.end(); ctfIt++)
 		{
 			dChannelIt->second.erase(*ctfIt);
@@ -354,7 +356,7 @@ float audioEngine::volumeTodb(float fVolumeLinear)
 void dspEngine::addDSPEffect(string systemID, FMOD_DSP_TYPE dspType)
 {
 	auto test = FMOD_Handler::instance();
-	if(!checkDSPInSystem(systemID, dspType))
+	if (!checkDSPInSystem(systemID, dspType))
 	{
 		auto inst = FMOD_Handler::instance();
 		auto systemsIt = inst->_mSystems.find(systemID);
@@ -442,7 +444,7 @@ void dspEngine::removeDSPEffect(string systemID, FMOD_DSP_TYPE dspType)
 void dspEngine::removeAllDSPEffectsInSystem(string systemID)
 {
 	auto inst = FMOD_Handler::instance();
-	
+
 	if (inst->_mDSP.count(systemID))
 	{
 		FMOD::ChannelGroup *master;
@@ -461,6 +463,29 @@ void dspEngine::removeAllDSPEffectsInSystem(string systemID)
 		{
 			inst->_mDSP.erase(*it);
 		}
+	}
+}
+
+void dspEngine::setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float delay, float feedback, float dry, float wet)
+{
+	FMOD::DSP *echo;
+	if (checkDSPInSystem(systemID, dspType, &echo))
+	{
+		echo->setParameterFloat(0, delay);
+		echo->setParameterFloat(1, feedback);
+		echo->setParameterFloat(2, dry);
+		echo->setParameterFloat(3, wet);
+	}
+}
+
+void dspEngine::setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain)
+{
+	FMOD::DSP *eq;
+	if (checkDSPInSystem(systemID, dspType, &eq))
+	{
+		eq->setParameterFloat(0, lowgain);
+		eq->setParameterFloat(1, midgain);
+		eq->setParameterFloat(2, highgain);
 	}
 }
 
@@ -523,7 +548,6 @@ int main()
 	ae->setChannelVolume(n, id, 0);
 	ae->setPauseOnChannel(n, id, true);
 	ae->setPauseOnChannel(n, id, false);
-
 	while (1) { ae->update(); }
 	return 0;
 }

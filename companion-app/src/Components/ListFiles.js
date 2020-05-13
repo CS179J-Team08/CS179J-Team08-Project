@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { Component } from 'react';
 import { API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../graphql/queries';
-import { ListItem } from 'semantic-ui-react';
 
 export default class ListFiles extends Component {
     constructor(props) {
@@ -35,7 +34,8 @@ export default class ListFiles extends Component {
     render() {
         return(
             <div>
-                <h3>File List</h3>
+                <h2>File List</h2>
+                <p></p>
                 <button onClick={ this.updateFileList }>Refresh File List</button>
                 <ul>
                     { this.state.fileList.map(listFile => (
