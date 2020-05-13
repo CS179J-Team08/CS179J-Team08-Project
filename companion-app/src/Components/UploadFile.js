@@ -112,7 +112,7 @@ class UploadFile extends Component {
             .catch(err => console.log(err));
 
             // create pointer in dynamoDB
-            await API.graphql(graphqlOperation(mutations.createAudio, {input: audioFileDetails}));
+            const newAudio = await API.graphql(graphqlOperation(mutations.createAudio, {input: audioFileDetails}));
 
             window.alert('File successfully uploaded');
           } catch (err) {
