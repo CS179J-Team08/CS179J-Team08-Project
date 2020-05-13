@@ -27,7 +27,7 @@ def test_server_file_already_exists():
     storageResult = fileName
     assert aws_download(bucketName, fileName, storageResult) == "file already exists"
 
-#def test_server_file_checker():
+def test_server_file_checker():
     s3 = boto3.resource('s3')
     bucketName = "testing-pi"
     fileName = "Igorrr- Downgrade Desert.flac"
