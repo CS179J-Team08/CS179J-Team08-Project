@@ -135,8 +135,10 @@ export default class App extends Component {
     }
 
     togglePlayPause = () => {
+        let groupUsers = this.state.userIDs;
+
         let play = this.state.play;
-        if(play == "false") {
+        if(play === "false") {
             play = "true";
         } else {
             play = "false";
@@ -145,7 +147,6 @@ export default class App extends Component {
         this.setState({ play: play });
         groupPacket.play = this.state.play;
 
-        let groupUsers = this.state.userIDs;
         for (const i in groupUsers) {
             let prefix = groupUsers[i];
 
@@ -153,11 +154,12 @@ export default class App extends Component {
             .then(result => console.log(result))
             .catch(err => console.log(err));
         }
+
     }
 
     toggleStop = () => {
         let stop = this.state.stop;
-        if(stop == "false") {
+        if(stop === "false") {
             stop = "true";
         } else {
             stop = "false";

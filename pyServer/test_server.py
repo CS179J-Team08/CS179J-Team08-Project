@@ -22,7 +22,7 @@ def test_initalization():
 def test_server_file_checker():
     s3 = boto3.resource('s3')
     bucketName = "testing-pi"
-    fileName = "Igorrr- Downgrade Desert.flac"
+    fileName = "Funky_Am.mp3"
     storageResult = fileName
     pathName = "../AudioEngine/audio/" + storageResult
     target_bucket = s3.Bucket(bucketName)
