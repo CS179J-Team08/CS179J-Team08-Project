@@ -22,8 +22,8 @@ def test_initalization():
 
 def test_server_file_already_exists():
     s3 = boto3.resource('s3')
-    bucketName = "testing-pi"
-    fileName = "Funky_Am.mp3"
+    bucketName = "cs-audiofile-bucketdefault-default"
+    fileName = "drumloop.wav"
     storageResult = fileName
     path_name = "../AudioEngine/audio/" + fileName
     target_bucket = s3.Bucket(bucketName)
