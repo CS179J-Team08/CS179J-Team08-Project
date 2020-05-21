@@ -140,8 +140,8 @@ class UploadFile extends Component {
         packet.parameters.echo.dry = this.state.echodry;
         
         // debugging purposes
-        console.log(packet.parameters.equalizer);
-        console.log(packet.parameters.echo);
+        console.log(packet);
+//        console.log(packet.parameters.echo);
 
         Storage.put(jsonFilePrefix + '.json', packet)
         .then (result => console.log(result))
