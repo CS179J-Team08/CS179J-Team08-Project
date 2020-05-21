@@ -29,6 +29,7 @@ class App extends Component {
           <Route exact path="/group-play" render={ props =>
               <div>
                 <GroupPlay />
+                <ListFiles />
               </div>
             } />
         </Router>

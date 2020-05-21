@@ -1,1 +1,9 @@
-{}
+{
+    "groupPermissionMap": {
+        "mainusers": [
+            "create/update",
+            "read",
+            "delete"
+        ]
+    }
+}

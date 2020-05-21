@@ -46,7 +46,7 @@ export default class ListFiles extends Component {
 
             // find id of file that needs to be deleted
             for (const i in items) {
-                if(items[i].name == this.state.fileToDelete) {
+                if(items[i].name === this.state.fileToDelete) {
                     fileID = items[i].id;
                 }
             }
