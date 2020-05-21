@@ -100,6 +100,47 @@ TEST_CASE("Create Channel via aePlaySound and unload channels", "[FMOD::System::
 	REQUIRE(mChannelIt3 == inst->_dChannels["Test aePlaySound"].end());
 }
 
+TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDSPEffect]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	// Add One, Remove One
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
+	auto mDSPIt = inst->_mDSP.find("Test Add");
+	REQUIRE(mDSPIt == inst->_mDSP.end());
+	a->removeDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
+	REQUIRE(inst->_mDSP.empty());
+	
+	// Add One, "Remove All"
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_PARAMEQ);
+	mDSPIt = inst->_mDSP.find("Test Add");
+	REQUIRE(mDSPIt == inst->_mDSP.end());
+	a->removeAllDSPEffectsInSystem("Test Add");
+	REQUIRE(inst->_mDSP.empty());
+	
+	// Add Multiple, "Remove All"
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_MIXER);
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_ECHO);
+	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_CHORUS);
+	a->removeAllDSPEffectsInSystem("Test Add");
+	REQUIRE(inst->_mDSP.empty());
+
+}
+
+TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	// Add Echo
+	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
+	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 10, 20, 3.0, -4.0);
+	vector<float> params = a->getEchoParameters("Test Echo"); //TODO: Get the vector to fill up with values
+	REQUIRE(params.at(0) == 10);
+	REQUIRE(params.at(1) == 20);
+	REQUIRE(params.at(2) == 3.0);
+	REQUIRE(params.at(3) == -4.0);
+	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_DISTORTION);
+}
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
 	auto inst = FMOD_Handler::instance();
@@ -123,3 +164,4 @@ TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
 	REQUIRE(volume == 56234.13251f);
 }
+
