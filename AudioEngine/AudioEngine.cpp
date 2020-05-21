@@ -486,6 +486,20 @@ void dspEngine::setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float 
 	}
 }
 
+vector<float> dspEngine::getEchoParameters(string systemID)
+{
+	vector<float> values;
+	FMOD::DSP *echo;
+	if (checkDSPInSystem(systemID, FMOD_DSP_TYPE_ECHO, &echo))
+	{
+		values.push_back(echo->getParameterFloat(0, 0, 0, 0));
+		values.push_back(echo->getParameterFloat(1, 0, 0, 0));
+		values.push_back(echo->getParameterFloat(2, 0, 0, 0));
+		values.push_back(echo->getParameterFloat(3, 0, 0, 0));
+	}
+	return values;
+}
+
 void dspEngine::setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain)
 {
 	FMOD::DSP *eq;
