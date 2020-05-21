@@ -90,7 +90,10 @@ void FMOD_Handler::update()
 			mapIt->second->isPlaying(&playing);
 			if (!playing)
 			{
-				channelsToFree.push_back(mapIt);
+			        string strSoundName = _mChannelToAudio[mapIt->first];
+				_mChannelToAudio.erase(mapIt->first);
+				_mAudioToChannel.erase(strSoundName);
+			        channelsToFree.push_back(mapIt);
 			}
 		}
 
@@ -226,7 +229,7 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, float 
 	return channelID;
 }
 
-void audioEngine::unloadChannel(string systemID, string strSoundName,  int channelID)
+void audioEngine::unloadChannel(string systemID, int channelID)
 {
 	auto inst = FMOD_Handler::instance();
 	auto dChannelIt = inst->_dChannels.find(systemID);
@@ -237,6 +240,8 @@ void audioEngine::unloadChannel(string systemID, string strSoundName,  int chann
 		{
 			audioEngine::errorCheck(mChannelIt->second->stop());
 			inst->_dChannels[systemID].erase(mChannelIt);
+			string strSoundName = inst->_mChannelToAudio[channelID];
+			inst->_mChannelToAudio.erase(channelID);
 			inst->_mAudioToChannel.erase(strSoundName);
 		}
 	}
@@ -260,6 +265,9 @@ void audioEngine::unloadAllChannelsInSystem(string systemID)
 		{
 			dChannelIt->second.erase(*ctfIt);
 		}
+
+		inst->_mAudioToChannel.clear();
+		inst->_mChannelToAudio.clear();
 	}
 }
 

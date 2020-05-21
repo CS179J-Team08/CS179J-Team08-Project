@@ -202,7 +202,9 @@ void packetParser::parseData(string packet)
 
 void packetParser::applyRequest()
 {
-	auto inst = FMOD_Handler::instance();
+        update(); //TODO: Should be moved out of this function, once process forking is implemented
+
+        auto inst = FMOD_Handler::instance();
 	auto d = dspEngine();
 	int channelID;
 	addSystem("mainSystem");
@@ -213,7 +215,7 @@ void packetParser::applyRequest()
 		auto channel = inst->_mAudioToChannel.find(request.filename);
 		if (channel != inst->_mAudioToChannel.end())
 		{
-			unloadChannel("mainSystem", request.filename, channel->second);
+			unloadChannel("mainSystem",  channel->second);
 			unloadSound("mainSystem", request.filename);
 		}
 	}
@@ -223,8 +225,10 @@ void packetParser::applyRequest()
 		{
 			if (atcIt == inst->_mAudioToChannel.end())
 			{
+			        unloadAllChannelsInSystem("mainSystem");
 				channelID = aePlaySound("mainSystem", request.filename);
 				inst->_mAudioToChannel[request.filename] = channelID;
+				inst->_mChannelToAudio[channelID] = request.filename;
 				atcIt = inst->_mAudioToChannel.find(request.filename);
 			}
 			else
