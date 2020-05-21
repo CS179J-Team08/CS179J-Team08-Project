@@ -134,7 +134,7 @@ export default class App extends Component {
         }
     }
 
-    setAudioState = () => {
+    togglePlayPause = () => {
         let play = this.state.play;
         if(play == "false") {
             play = "true";
@@ -155,7 +155,7 @@ export default class App extends Component {
         }
     }
 
-    setStopAudio = () => {
+    toggleStop = () => {
         let stop = this.state.stop;
         if(stop == "false") {
             stop = "true";
@@ -250,8 +250,8 @@ export default class App extends Component {
             </div>
             <div>
                 <p></p>
-                <button onClick={this.setAudioState}>Play/Pause</button>
-                <button onClick={this.setStopAudio}>Stop</button>
+                <button onClick={this.togglePlayPause}>Play/Pause</button>
+                <button onClick={this.toggleStop}>Stop</button>
             </div>
         </>
       );
