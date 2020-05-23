@@ -76,7 +76,7 @@ export default class ListFiles extends Component {
         return(
             <div>
                 <h2>File List</h2>
-                <form onSubmit={this.deleteFile}>
+                <form onSubmit={ this.deleteFile }>
                     <label>File to delete
                         <input type="text" onChange={ (event) => {
                             this.setState({

@@ -8,7 +8,8 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import UploadFile from "./Components/UploadFile";
 import ListFiles from "./Components/ListFiles";
-import GroupPlay from "./Components/GroupPlay"
+import GroupPlay from "./Components/GroupPlay";
+import FriendsManagement from "./Components/FriendsManagement";
 
 Amplify.configure(aws_exports);
 
@@ -20,6 +21,11 @@ class App extends Component {
           <Link to="/"> Home </Link>
           <Link to="/solo-play"> Solo Play </Link>  
           <Link to="/group-play"> Group Play </Link>  
+          <Route path="/" render={ props =>
+            <div>
+              <FriendsManagement />  
+            </div>
+          } />
           <Route exact path="/solo-play" render={ props =>
             <div>
               <UploadFile />
@@ -31,7 +37,7 @@ class App extends Component {
                 <GroupPlay />
                 <ListFiles />
               </div>
-            } />
+          } />
         </Router>
       </>
     );

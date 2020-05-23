@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Auth, API, Storage } from 'aws-amplify';
 
-// it seems the best course of action is to create a new packet for group play 
+// it seems the best course of action is to create a new packet definition for group play 
 // since we want a clean slate when sending a packet for group sharing
 // researching online shows that clearing our a javascript object is best done
 // by just creating a new object. I guess.
@@ -34,7 +34,7 @@ let groupPacket = {
     }
 };
 
-export default class App extends Component {
+export default class GroupPlay extends Component {
     constructor(props) {
         super(props);
 
@@ -182,7 +182,6 @@ export default class App extends Component {
       return (
         <>
             <div>
-                <p>TODO: Add group play functionality</p>
                 <h3>Add Users to Group</h3>
                 <form onSubmit={ this.addUsersToGroup }>
                     <label>
