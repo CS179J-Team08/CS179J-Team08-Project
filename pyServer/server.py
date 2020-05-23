@@ -1,4 +1,5 @@
 import boto3
+import pickle
 import sys
 import socket
 import time
@@ -75,6 +76,7 @@ def socket_server_accept_connection(s):
         sys.exit()
     else:
         conn.sendall(bytes(str(length), 'utf-8'))
+        time.sleep(0.001)
         conn.sendall(vaild_connection)
         print ("Message sent to the client")
     return conn
@@ -89,11 +91,11 @@ def socket_server_accept_connection(s):
 
 def socket_server_respond_request(conn, data):
     reply = bytes(str(data), 'utf-8')
+    print(data)
     length = len(reply.decode())
     print("Length of queue message: " + str(length))
-  #  time.sleep(5)
     conn.sendall(bytes(str(length), 'utf-8'))
-   # time.sleep(5)
+    time.sleep(0.001)
     conn.sendall(reply)
 
 
@@ -107,7 +109,6 @@ def socket_server_respond_request(conn, data):
 def aws_download(bucketName, fileName, storageResult):
     #Initialize a boto3 resource
     s3 = boto3.resource('s3')
-    print(fileName)
     #Begin to download the specified fileName
     storage_path = "../AudioEngine/audio/" + storageResult
     if path.exists(storage_path) == False:
@@ -136,7 +137,7 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
             #We call aws_download and pass the bucket we want to download from, the exact path to the file for download, and the user specified file name for the given download
             fileName = aws_download(bucket_path, obj.key, target_data[0])
             return fileName
-    print ("file not found")
+    print ("Requested file was not found. Awaiting for next queue message")
     return "file not found"
 
 
@@ -152,15 +153,17 @@ if __name__ == '__main__':
     server_client =  boto3.resource('s3')
     bucket = "cs-audiofile-bucketdefault-default"
     message_queue = sqs_init()
+    arr = ["hello.wav", "goodbye.wav"]
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
+            socket_server_respond_request(conn, arr)
             sqs_response = await_SQS_response(message_queue)
             if sqs_response[4] == True:
-                confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
-                print(sqs_response[1])
-                socket_server_respond_request(conn, sqs_response[1])
-                #socket_server_respond_request(conn, sqs_response[0])
+                if confirm_file_is_vaild(bucket, bucket_obj, sqs_response) is "file not found":
+                    pass
+                else:
+                    socket_server_respond_request(conn, arr)
             else:
                 print("Error the received JSON from SQS is invaild")
                 print("Waiting for the next request before sending data to the audio engine")

@@ -66,7 +66,8 @@ def sqs_init():
 
 def verify_data(queue_data):
     float_str = queue_data[2]
-    if  str(float_str).replace('.','', 1).isdigit() == False:
+    float_str = float_str.replace('-','',1)
+    if float_str.replace('.','', 1).isdigit() == False:
         return False
     elif queue_data[1] != "false" and queue_data[1] != "true":
         return False
@@ -90,7 +91,6 @@ def mock_SQS_queue(string_data):
     try:
         messageBody = json.loads(string_data)
         message_to_engine = messageBody
-        print(messageBody)
         fileName = messageBody["filename"]
         play_option = messageBody["play"]
         volume_option = messageBody["parameters"]["volume"]
@@ -99,7 +99,6 @@ def mock_SQS_queue(string_data):
         print(volume_option)
 
         data_is_vaild = verify_data((fileName, play_option, volume_option))
-        print (data_is_vaild)
         return (fileName, message_to_engine, play_option, volume_option, data_is_vaild)
     except KeyError as error:
         print ("This given json does not have the following field " + str(error))
@@ -127,18 +126,13 @@ def await_SQS_response(queue):
                 messageBody = json.loads(message.body)
                 message_to_engine = messageBody
                 #actualMessages.append(messageBody)
-                print(messageBody)
                 fileName = messageBody["filename"]
                 play_option = messageBody["play"]
                 volume_option = messageBody["parameters"]["volume"]
-                print(fileName)
-                print(play_option)
-                print(volume_option)
                 message.delete()
                 waiting_for_SQS = 0
 
         data_is_vaild = verify_data((fileName, play_option, volume_option))
-        print (data_is_vaild)
         return (fileName, message_to_engine, play_option, volume_option, data_is_vaild)
     except KeyError as error:
         print ("This given json does not have the following field " + str(error))
