@@ -126,6 +126,7 @@ def await_SQS_response(queue):
                 messageBody = json.loads(message.body)
                 message_to_engine = messageBody
                 #actualMessages.append(messageBody)
+                print(messageBody)
                 fileName = messageBody["filename"]
                 play_option = messageBody["play"]
                 volume_option = messageBody["parameters"]["volume"]

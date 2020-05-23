@@ -128,12 +128,19 @@ int main()
 
 
     if(pid == 0)   {
+
+	    server_client_init(&sockfd, &servaddr);
+	    //Send a response to acknowledge the connection from client to server
+	    printf("Sending Client Connection\n");
+	    result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
+	    printf("Result: %d\n", result);
+	    printf("Message sent!\n");
+	    server_client_await_request(sockfd, dataPtr, &servaddr);
+	    printf("Message from server: %s \n", dataPtr);
 	    printf("Child process is listening to the server\n");
 	    close(pipefd[0]);
 	    while(1)    {
-		//server_client_await_request(sockfd, dataPtr, &servaddr);
-		sleep(5);
-		dataPtr = "hello world\n";
+		server_client_await_request(sockfd, dataPtr, &servaddr);
 		printf("Sending data to parent process\n");
 		write(pipefd[1], dataPtr, strlen(dataPtr)+1);
 	    }
@@ -147,6 +154,7 @@ int main()
     //printf("Listening to python server\n");
     while(1)   
     {
+	result = 0;
         //server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("Listening to the child process\n");
 	result = read(pipefd[0], dataPtr, 1024);
@@ -166,24 +174,22 @@ int main()
 		exit(0);
 	}
 	else   {
-		printf("Received message %s\n", dataPtr);
-	}
-	/*
+	
         // start parser
-        string jsonDataPacket(dataPtr);
-	cout << jsonDataPacket;
-	cout << "Packet converted to string\n";
-	parser.parseData(jsonDataPacket);
-	cout << "Data parsed\n";
-        audioSettings = parser.getCurrentRequest();
+		string jsonDataPacket(dataPtr);
+		cout << jsonDataPacket;
+		cout << "Packet converted to string\n";
+		parser.parseData(jsonDataPacket);
+		cout << "Data parsed\n";
+		audioSettings = parser.getCurrentRequest();
 
-        cout << "filename: " << audioSettings.filename << '\n';
-        cout << "Play: " << audioSettings.play << '\n';
-        cout << "Volume: " << audioSettings.volume << '\n';
+		cout << "filename: " << audioSettings.filename << '\n';
+		cout << "Play: " << audioSettings.play << '\n';
+		cout << "Volume: " << audioSettings.volume << '\n';
 
-	parser.applyRequest();
-	cout << "request applied\n";
-	parser.update();
-	*/
+		parser.applyRequest();
+		cout << "request applied\n";
+		parser.update();
+	}
     }
 }

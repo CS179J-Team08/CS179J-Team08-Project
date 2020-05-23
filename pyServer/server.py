@@ -91,7 +91,6 @@ def socket_server_accept_connection(s):
 
 def socket_server_respond_request(conn, data):
     reply = bytes(str(data), 'utf-8')
-    print(data)
     length = len(reply.decode())
     print("Length of queue message: " + str(length))
     conn.sendall(bytes(str(length), 'utf-8'))
@@ -153,17 +152,15 @@ if __name__ == '__main__':
     server_client =  boto3.resource('s3')
     bucket = "cs-audiofile-bucketdefault-default"
     message_queue = sqs_init()
-    arr = ["hello.wav", "goodbye.wav"]
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
-            socket_server_respond_request(conn, arr)
             sqs_response = await_SQS_response(message_queue)
             if sqs_response[4] == True:
                 if confirm_file_is_vaild(bucket, bucket_obj, sqs_response) is "file not found":
                     pass
                 else:
-                    socket_server_respond_request(conn, arr)
+                    socket_server_respond_request(conn, sqs_response[1])
             else:
                 print("Error the received JSON from SQS is invaild")
                 print("Waiting for the next request before sending data to the audio engine")
