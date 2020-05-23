@@ -2,6 +2,40 @@ import boto3
 import json
 import sys
 
+
+def sqs_register_device():
+    sqs = boto3.resource('sqs')
+    sqsClient = boto3.client('sqs')
+    queue = sqs.get_queue_by_name(QueueName='TutorialTestQueue')
+    print("Receiving messages from: {0}".format(queue.url))
+    print('')
+    return queue
+
+def listen_for_registration(queue):
+    waiting_for_SQS = 1
+    queue_id = None
+    try:
+        while waiting_for_SQS:
+            # receive messages from SQS queue here
+            for message in queue.receive_messages(MaxNumberOfMessages=maxQueueMessages):
+                messageBody = json.loads(message.body)
+                message_to_engine = messageBody
+                #actualMessages.append(messageBody)
+                print(messageBody)
+                queue_id = messageBody["queue"]
+                message.delete()
+                waiting_for_SQS = 0
+
+        return queue_id
+    except KeyError as error:
+        print("Error the field for the queue is invaild")
+        queue.purge()
+        return (fileName, message_to_engine, play_option, volume_option, data_is_vaild)
+    except KeyboardInterrupt:
+        sys.exit()
+
+
+
 #Author: Joseph DiCarlantonio
 #Output: An SQS message queue
 #Input: None
@@ -9,13 +43,13 @@ import sys
 #Description: This method initializes the SQS queue used for receiving messages from an AWS SNS topic. By creating this we can receive messages from our cloud service on to the raspberry pi
 maxQueueMessages = 10
 
-def sqs_init():
+def sqs_init(queue_id):
     sqs = boto3.resource('sqs')
     sqsClient = boto3.client('sqs')
-
+    print(queue_id)
     #queue = sqs.get_queue_by_name(QueueName='PacketQueue')
     queueClient = sqsClient.create_queue(
-            QueueName='6aa75722-15a4-488a-907a-e546c678d691'
+            QueueName=str(queue_id)
             )
     queueUrl = queueClient['QueueUrl']
     queueAttr = sqsClient.get_queue_attributes(

@@ -8,6 +8,9 @@ import os.path
 from os import path
 from receivePacket import await_SQS_response
 from receivePacket import sqs_init
+from receivePacket import sqs_register_device
+from receivePacket import listen_for_registration
+
 #Definitions of the HOST and PORT to use for the socket connection
 HOST = 'localhost'	# Symbolic name meaning all available interfaces
 PORT = 12345	# Arbitrary non-privileged port
@@ -139,7 +142,15 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
     print ("Requested file was not found. Awaiting for next queue message")
     return "file not found"
 
+def find_user_queue():
+    with open('device.json', 'r') as device:
+        data = json.load(device)
 
+    print(data)
+    if data["queue"] == "empty":
+        return (data, False)
+    else:
+        return (data, True)
 
 #Main function
 if __name__ == '__main__':
@@ -147,11 +158,36 @@ if __name__ == '__main__':
     s = None
     conn = None
     fileName = None
+    queue_id = None
+    registration = find_user_queue()
+
+    if registration[1] == False:
+        print("This device is not connected to the web app")
+        message_queue = sqs_register_device()
+        while queue_id == None:
+            queue_id = listen_for_registration(message_queue)
+            print(queue_id)
+        registration[0]["queue"] = queue_id
+        new_json = { "device" : "", "queue" : ""}
+        new_json["device"] = registration[0]["device"]
+        new_json["queue"] = registration[0]["queue"]
+        json_obj = json.dumps(new_json)
+        with open('device.json', 'w') as json:
+            json.write(json_obj)
+        print("Device was registered")
+
+    else:
+        print("assigning the user queue to the specified value in device.json")
+        queue_id = registration[0]["queue"]
+        #assign queue value to python queue
+
+
     s = socket_server_init()
     conn = socket_server_accept_connection(s)
     server_client =  boto3.resource('s3')
     bucket = "cs-audiofile-bucketdefault-default"
-    message_queue = sqs_init()
+
+    message_queue = sqs_init(queue_id)
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
