@@ -96,7 +96,7 @@ export default class GroupPlay extends Component {
 
                 this.setState({
                     numUsers: userCount
-                })
+                });
             } 
         }
 
@@ -118,12 +118,6 @@ export default class GroupPlay extends Component {
         // for debugging
         console.log(groupPacket);
 
-        // here for reference, if this is still exists please remove it
-/* 
-        Storage.put(jsonFilePrefix + '.json', packet)
-        .then (result => console.log(result))
-        .catch(err => console.log(err));
-*/
         // assign json file prefixes as per each user's UUID
         for (const i in groupUsers) {
             let prefix = groupUsers[i];

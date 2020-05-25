@@ -11,3 +11,9 @@ type Audio @model @auth(rules: [{allow: owner}]) {
 
   file: S3Object
 }
+
+type Friend @model {
+  id: ID!
+  username: String
+  owner: String
+}
