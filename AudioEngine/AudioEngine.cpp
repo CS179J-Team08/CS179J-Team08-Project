@@ -489,13 +489,17 @@ void dspEngine::setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float 
 vector<float> dspEngine::getEchoParameters(string systemID)
 {
 	vector<float> values;
+	float param0, param1, param2, param3;
 	FMOD::DSP *echo;
 	if (checkDSPInSystem(systemID, FMOD_DSP_TYPE_ECHO, &echo))
 	{
-		values.push_back(echo->getParameterFloat(0, 0, 0, 0));
-		values.push_back(echo->getParameterFloat(1, 0, 0, 0));
-		values.push_back(echo->getParameterFloat(2, 0, 0, 0));
-		values.push_back(echo->getParameterFloat(3, 0, 0, 0));
+		errorCheck(echo->getParameterFloat(0, &param0, 0, 0));
+		values.push_back(param0);
+		errorCheck(echo->getParameterFloat(0, &param1, 0, 0));
+		values.push_back(param1);
+		errorCheck(echo->getParameterFloat(0, &param2, 0, 0));
+		values.push_back(param2);
+		errorCheck(echo->getParameterFloat(0, &param3, 0, 0));
 	}
 	return values;
 }
