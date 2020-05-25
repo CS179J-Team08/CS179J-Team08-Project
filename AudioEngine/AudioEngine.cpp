@@ -493,13 +493,13 @@ vector<float> dspEngine::getEchoParameters(string systemID)
 	FMOD::DSP *echo;
 	if (checkDSPInSystem(systemID, FMOD_DSP_TYPE_ECHO, &echo))
 	{
-		errorCheck(echo->getParameterFloat(0, &param0, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(0, &param0, 0, 0));
 		values.push_back(param0);
-		errorCheck(echo->getParameterFloat(0, &param1, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(0, &param1, 0, 0));
 		values.push_back(param1);
-		errorCheck(echo->getParameterFloat(0, &param2, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(0, &param2, 0, 0));
 		values.push_back(param2);
-		errorCheck(echo->getParameterFloat(0, &param3, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(0, &param3, 0, 0));
 	}
 	return values;
 }
