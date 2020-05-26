@@ -22,7 +22,6 @@ export default class FriendsManagement extends Component {
 
     addToFriendsList = async () => {
         let user = await Auth.currentAuthenticatedUser();
-
         const { attributes } = user;
 
         const friendDetails = {

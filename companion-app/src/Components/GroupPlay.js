@@ -34,6 +34,12 @@ let groupPacket = {
     }
 };
 
+// this apparently only works in the global scope
+let currentUserId = 'default';
+Auth.currentAuthenticatedUser().then((user) => {
+    currentUserId = user.attributes.sub;
+});
+
 export default class GroupPlay extends Component {
     constructor(props) {
         super(props);
@@ -100,14 +106,21 @@ export default class GroupPlay extends Component {
             } 
         }
 
-        console.log(this.state.userIDs);
-
         if(!userAdded) {
             window.alert("Please specify at least one user");
+        } else {
+            let userIDTemp = this.state.userIDs.concat();
+            userIDTemp.push(currentUserId);
+
+            this.setState({
+                userIDs: userIDTemp
+            })
         }
+
+        console.log(this.state.userIDs);
     }
 
-    shareFile = async () => {
+    shareFile = () => {
         let groupUsers = this.state.userIDs;
         for (const i in groupUsers) {
             groupPacket.group[i].userID = groupUsers[i];
@@ -148,7 +161,6 @@ export default class GroupPlay extends Component {
             .then(result => console.log(result))
             .catch(err => console.log(err));
         }
-
     }
 
     toggleStop = () => {

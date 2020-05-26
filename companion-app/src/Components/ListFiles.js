@@ -20,8 +20,6 @@ export default class ListFiles extends Component {
         const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
         const items = audioFiles.data.listAudios.items;
 
- //       console.log(items);
-
         // update file list ... this kind of works, the listAudios query doesnt seem to be working correctly
         for (const i in items) {
             if(!this.state.fileList.includes(items[i].name)) {
