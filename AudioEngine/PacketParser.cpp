@@ -346,8 +346,8 @@ void packetParser::applyRequest()
 
 		if (request.pitchshift.apply == true)
 		{
-			d.addDSPEffect("mainSystem", FMOD_DSP_PITCHSHIFT);
-			d.setPitchShiftParameters("mainSystem", FMOD_DSP_PITCHSHIFT, request.pitchshift.pitch, request.pitchshift.fftsize, request.pitchshift.maxchannels);
+			d.addDSPEffect("mainSystem", FMOD_DSP_TYPE_PITCHSHIFT);
+			d.setPitchShiftParameters("mainSystem", FMOD_DSP_TYPE_PITCHSHIFT, request.pitchshift.pitch, request.pitchshift.fftsize, request.pitchshift.maxchannels);
 		}
 		else
 		{
