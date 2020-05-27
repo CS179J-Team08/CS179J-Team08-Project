@@ -7,13 +7,15 @@ import { Auth, API, Storage } from 'aws-amplify';
 // by just creating a new object. I guess.
 let groupPacket = {
     group: [
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
     ],
-    filename: "",
+    filenames: [ // dynamic
+        { name: "" }
+    ],
     play: "false",
     stop: "false",
     parameters: {
@@ -54,7 +56,7 @@ export default class GroupPlay extends Component {
             },
             numUsers: 0,
             userIDs: [],
-            groupFileName: "",
+            groupFileNames: [{ name: "" }],
             play: "false",
             stop: "false"
         }
@@ -126,7 +128,7 @@ export default class GroupPlay extends Component {
             groupPacket.group[i].userID = groupUsers[i];
         }
 
-        groupPacket.filename = this.state.groupFileName;
+        groupPacket.filenames = this.state.groupFileNames;
         
         // for debugging
         console.log(groupPacket);
@@ -182,6 +184,30 @@ export default class GroupPlay extends Component {
             .then(result => console.log(result))
             .catch(err => console.log(err));
         }
+    }
+
+    updateFileName = idx => event => {
+        const newFilenames = this.state.groupFileNames.map((filename, sidx) => {
+          if(idx !== sidx) {
+            return filename;
+          }
+
+          return { ...filename, name: event.target.value };
+        });
+
+        this.setState({ groupFileNames: newFilenames })
+      }
+
+    removeFilename = idx => () => {
+        this.setState({
+            groupFileNames: this.state.groupFileNames.filter((s, sidx) => idx !== sidx)
+        });
+    }
+
+    addFilename = () => {
+        this.setState({
+            groupFileNames: this.state.groupFileNames.concat([{ name: "" }])
+        });
     }
 
     render() {
@@ -244,16 +270,31 @@ export default class GroupPlay extends Component {
                 </form>
             </div>
             <div>
-                <h3>Share Audio</h3>
-                <label>
-                    Filename:
-                    <input type="text" onChange={ (event) => {
-                        this.setState({
-                            groupFileName: event.target.value
-                        })
-                    } } />
-                </label>
-                <button onClick={this.shareFile}>Share</button>
+                <form>
+                  <h3> Share Audio </h3>
+                    { this.state.groupFileNames.map((filename, idx) => (
+                      <div>
+                        <input 
+                          type="text"
+                          placeholder={`File #${idx + 1}`}
+                          value={filename.name}
+                          onChange={this.updateFileName(idx)}
+                        />
+                        <button
+                          type="button"
+                          onClick={this.removeFilename(idx)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )) }
+                    <button
+                      type="button"
+                      onClick={this.addFilename}
+                    >Add File</button>
+                </form>
+                <p></p>
+                <button onClick={this.shareFile}>Share Playlist</button>
             </div>
             <div>
                 <p></p>
