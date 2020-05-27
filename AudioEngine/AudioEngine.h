@@ -94,6 +94,8 @@ public:
 	void removeAllDSPEffectsInSystem(string systemID);
 	void setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float delay, float feedback, float dry, float wet);
 	void setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain);
+	void setFlangeParameters(string systemID, FMOD_DSP_TYPE dspType, float mix, float depth, float rate);
+	void setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, float pitch, float fftsize, float maxchannels);
 
 private:
 	inline bool checkIndex(int index, int limit);
