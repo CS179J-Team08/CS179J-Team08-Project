@@ -163,7 +163,7 @@ def thread_download(bucket, bucket_obj, sqs_response):
     print("Thread Done")
 
 
-def message_file_check(sqs_response, bucket_obj):
+def message_file_check(sqs_response, target_bucket):
     file_exists = 0
     for files in sqs_response[0]:
         temp = files["name"]
@@ -188,8 +188,8 @@ if __name__ == '__main__':
     fileName = None
     queue_id = None
     thread = None
-    s = socket_server_init()
-    conn = socket_server_accept_connection(s)
+    #s = socket_server_init()
+    #conn = socket_server_accept_connection(s)
     registration = find_user_queue()
 
     if registration[1] == False:
@@ -231,7 +231,8 @@ if __name__ == '__main__':
             if sqs_response[4] == True:
                 sqs_response = message_file_check(sqs_response, bucket_obj)
                 sqs_response[1]["filenames"] = sqs_response[0]
-                socket_server_respond_request(conn, sqs_response[1])
+                #socket_server_respond_request(conn, sqs_response[1])
+                print("Message Sent")
 
             else:
                 print("Error the received JSON from SQS is invaild")
@@ -239,4 +240,5 @@ if __name__ == '__main__':
 
 #This can shutdown gracefully if you press control + c.
         except KeyboardInterrupt:
-            s.close()
+            #s.close()
+            print("HI")
