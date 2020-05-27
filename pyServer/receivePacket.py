@@ -161,7 +161,7 @@ def await_SQS_response(queue):
                 message_to_engine = messageBody
                 #actualMessages.append(messageBody)
                 print(messageBody)
-                fileName = messageBody["filename"]
+                fileName = messageBody["filenames"]
                 play_option = messageBody["play"]
                 volume_option = messageBody["parameters"]["volume"]
                 message.delete()

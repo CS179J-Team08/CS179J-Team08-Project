@@ -4,6 +4,7 @@ import sys
 import socket
 import time
 import json
+import threading
 import os.path
 from os import path
 from receivePacket import await_SQS_response
@@ -152,6 +153,33 @@ def find_user_queue():
     else:
         return (data, True)
 
+
+def thread_download(bucket, bucket_obj, sqs_response):
+    for files in sqs_response[0]:
+        temp = files["name"]
+        tup = (temp, "")
+        filename = confirm_file_is_vaild(bucket, bucket_obj, tup)
+        print(filename)
+    print("Thread Done")
+
+
+def message_file_check(sqs_response, bucket_obj):
+    file_exists = 0
+    for files in sqs_response[0]:
+        temp = files["name"]
+        for obj in target_bucket.objects.all():
+            if temp in obj.key:
+                file_exists = 1
+
+        if file_exists:
+            file_exists = 0
+        else:
+            files["name"] = ""
+            file_exists = 0
+
+    return sqs_response
+
+
 #Main function
 if __name__ == '__main__':
     #Initialize our socket and connection to None, then begin their initialization
@@ -159,6 +187,9 @@ if __name__ == '__main__':
     conn = None
     fileName = None
     queue_id = None
+    thread = None
+    s = socket_server_init()
+    conn = socket_server_accept_connection(s)
     registration = find_user_queue()
 
     if registration[1] == False:
@@ -182,21 +213,26 @@ if __name__ == '__main__':
         #assign queue value to python queue
 
 
-    s = socket_server_init()
-    conn = socket_server_accept_connection(s)
     server_client =  boto3.resource('s3')
     bucket = "cs-audiofile-bucketdefault-default"
-
     message_queue = sqs_init(queue_id)
+
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
             sqs_response = await_SQS_response(message_queue)
+            if thread == None:
+                pass
+            elif thread.is_alive():
+                thread.join()
+
+            thread = threading.Thread(target=thread_download, args=(bucket,bucket_obj, sqs_response))
+            thread.start()
             if sqs_response[4] == True:
-                if confirm_file_is_vaild(bucket, bucket_obj, sqs_response) is "file not found":
-                    pass
-                else:
-                    socket_server_respond_request(conn, sqs_response[1])
+                sqs_response = message_file_check(sqs_response, bucket_obj)
+                sqs_response[1]["filenames"] = sqs_response[0]
+                socket_server_respond_request(conn, sqs_response[1])
+
             else:
                 print("Error the received JSON from SQS is invaild")
                 print("Waiting for the next request before sending data to the audio engine")
