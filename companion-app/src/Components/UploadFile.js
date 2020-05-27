@@ -31,6 +31,19 @@ let packet = {
       lowgain: 0.0,
       midgain: 0.0,
       highgain: 0.0
+    },
+    flange: {
+      apply: false,
+      mix: 0.0,
+      depth: 0.01,
+      rate: 0.0
+    },
+    pitchshift: {
+      apply: false,
+      pitch: 1.0,
+      fftsize: 1024,
+      //overlap (REMOVED FMOD PARAMETER)
+      maxchannels: 0
     }
   }
 };
@@ -59,7 +72,15 @@ class UploadFile extends Component {
           echodelay: "10.0",
           echofeedback: "0.0",
           echodry: "0.0",
-          echowet: "0.0"
+          echowet: "0.0",
+          flangeapply: "false",
+          flangemix: "0.0",
+          flangedepth: "0.01",
+          flangerate: "0.0",
+          pitchapply: "false",
+          pitchpitch: "1.0",
+          pitchfft: "1024",
+          pitchchannels: "0.0"
         };
 
         this.updatePlayState = this.updatePlayState.bind(this);
@@ -74,6 +95,14 @@ class UploadFile extends Component {
         this.updateEchoFeedback = this.updateEchoFeedback.bind(this);
         this.udpateEchoWetVolume = this.udpateEchoWetVolume.bind(this);
         this.udpateEchoDryVolume = this.udpateEchoDryVolume.bind(this);
+        this.applyFlange = this.applyFlange.bind(this);
+        this.updateFlangeMix = this.updateFlangeMix.bind(this);
+        this.updateFlangeDepth = this.updateFlangeDepth.bind(this);
+        this.updateFlangeRate = this.updateFlangeRate.bind(this);
+        this.applyPitch = this.applyPitch.bind(this);
+        this.updatePitchPitch = this.updatePitchPitch.bind(this);
+        this.updatePitchFFT = this.updatePitchFFT.bind(this);
+        this.updatePitchChannels = this.updatePitchChannels.bind(this);
       }
 
       uploadAudioFile = async (evt) => {
@@ -140,7 +169,14 @@ class UploadFile extends Component {
         packet.parameters.echo.feedback = this.state.echofeedback;
         packet.parameters.echo.wet = this.state.echowet;
         packet.parameters.echo.dry = this.state.echodry;
-        
+        packet.parameters.flange.apply = this.state.flangeapply;
+        packet.parameters.flange.mix = this.state.flangemix;
+        packet.parameters.flange.depth = this.state.flangedepth;
+        packet.parameters.flange.rate = this.state.flangerate;
+        packet.parameters.pitch.apply = this.state.pitchapply;
+        packet.parameters.pitch.pitch = this.state.pitchpitch;
+        packet.parameters.pitch.fft = this.state.pitchfft;
+        packet.parameters.pitch.channels = this.state.pitchchannels;
         // debugging purposes
         console.log(packet);
 
@@ -240,6 +276,38 @@ class UploadFile extends Component {
         this.setState({ echodry: event.target.value });
       }
 
+      applyFlange(event) {
+        this.setState({ flangeapply: event.target.value });
+      }
+
+      updateFlangeMix(event) {
+        this.setState({ flangemix: event.target.value });
+      }
+
+      updateFlangeDepth(event) {
+        this.setState({ flangedepth: event.target.value });
+      }
+
+      updateFlangeRate(event) {
+        this.setState({ flangerate: event.target.value });
+      }
+
+      applyPitch(event) {
+        this.setState({ pitchapply: event.target.value });
+      }
+
+      updatePitchPitch(event) {
+        this.setState({ pitchpitch: event.target.value });
+      }
+
+      updatePitchFFT(event) {
+        this.setState({ pitchfft: event.target.value });
+      }
+
+      updatePitchChannels(event) {
+        this.setState({ pitchchannels: event.target.value });
+      }
+
       render() {
         return (
             <>
@@ -320,6 +388,38 @@ class UploadFile extends Component {
                 <label>
                   Dry Volume:
                   <input type="number" step="0.1" onChange={this.udpateEchoDryVolume} />
+                </label>
+              </div>
+              <div>
+                <h5>Flange:</h5>
+                <input type="checkbox" onChange={this.applyFlange} />
+                <label>
+                  Mix:
+                  <input type="number" step="0.1" onChange={this.updateFlangeMix} />
+                </label>
+                <label>
+                  Depth:
+                  <input type="number" step="0.1" onChange={this.updateFlangeDepth} />
+                </label>
+                <label>
+                  Rate:
+                  <input type="number" step="0.1" onChange={this.updateFlangeRate} />
+                </label>
+              </div>
+              <div>
+                <h5>Pitch-shift:</h5>
+                <input type="checkbox" onChange={this.applyPitch} />
+                <label>
+                  Pitch:
+                  <input type="number" step="0.1" onChange={this.updatePitchPitch} />
+                </label>
+                <label>
+                  FFT Size:
+                  <input type="number" step="256" onChange={this.updatePitchFFT} />
+                </label>
+                <label>
+                  Channels:
+                  <input type="number" step="1" onChange={this.updatePitchChannels} />
                 </label>
               </div>
               <p></p>

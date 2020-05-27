@@ -594,6 +594,28 @@ vector<float> dspEngine::getEqParameters(string systemID, FMOD_DSP_TYPE dspType)
 	return values;
 }
 
+void dspEngine::setFlangeParameters(string systemID, FMOD_DSP_TYPE dspType, float mix, float depth, float rate)
+{
+	FMOD::DSP *flange;
+	if (checkDSPInSystem(systemID, dspType, &flange))
+	{
+		flange->setParameterFloat(0, mix);
+		flange->setParameterFloat(1, depth);
+		flange->setParameterFloat(2, rate);
+	}
+}
+
+void dspEngine::setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, float pitch, float fftsize, float maxchannels)
+{
+	FMOD::DSP *pitchshift;
+	if (checkDSPInSystem(systemID, dspType, &pitchshift))
+	{
+		pitchshift->setParameterFloat(0, pitch);
+		pitchshift->setParameterFloat(1, fftsize);
+		pitchshift->setParameterFloat(2, maxchannels);
+	}
+}
+
 bool dspEngine::checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput)
 {
 	auto inst = FMOD_Handler::instance();
