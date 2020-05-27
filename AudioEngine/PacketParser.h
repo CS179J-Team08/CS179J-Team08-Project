@@ -29,7 +29,7 @@ struct flangeEffect
 	float mix;
 	float depth;
 	float rate;
-}
+};
 
 struct pitchEffect
 {
@@ -37,7 +37,7 @@ struct pitchEffect
 	float pitch;
 	float fftsize;
 	float maxchannels;
-}
+};
 
 struct dataPacket
 {
