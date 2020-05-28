@@ -486,12 +486,12 @@ void dspEngine::setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float 
 	}
 }
 
-vector<float> dspEngine::getEchoParameters(string systemID)
+vector<float> dspEngine::getEchoParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
 	float param0, param1, param2, param3;
 	FMOD::DSP *echo;
-	if (checkDSPInSystem(systemID, FMOD_DSP_TYPE_ECHO, &echo))
+	if (checkDSPInSystem(systemID, dspType, &echo))
 	{
 		audioEngine::errorCheck(echo->getParameterFloat(0, &param0, 0, 0));
 		values.push_back(param0);
