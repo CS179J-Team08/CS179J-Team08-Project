@@ -134,7 +134,7 @@ TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
 	// Add Echo
 	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
 	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 10, 20, 3.0, -4.0);
-	vector<float> params = a->getEchoParameters("Test Echo"); //TODO: Get the vector to fill up with values
+	vector<float> params = a->getEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO); //TODO: Get the vector to fill up with values
 	REQUIRE(params.at(0) == 10);
 	REQUIRE(params.at(1) == 20);
 	REQUIRE(params.at(2) == 3.0);
