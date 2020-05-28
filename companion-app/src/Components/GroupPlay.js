@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
 import { Auth, API, Storage } from 'aws-amplify';
 
-// it seems the best course of action is to create a new packet for group play 
+// it seems the best course of action is to create a new packet definition for group play 
 // since we want a clean slate when sending a packet for group sharing
 // researching online shows that clearing our a javascript object is best done
 // by just creating a new object. I guess.
 let groupPacket = {
     group: [
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
-      { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
+        { userID: "" },
     ],
-    filename: "",
+    filenames: [ // dynamic
+        { name: "" }
+    ],
     play: "false",
     stop: "false",
     parameters: {
@@ -34,7 +36,13 @@ let groupPacket = {
     }
 };
 
-export default class App extends Component {
+// this apparently only works in the global scope
+let currentUserId = 'default';
+Auth.currentAuthenticatedUser().then((user) => {
+    currentUserId = user.attributes.sub;
+});
+
+export default class GroupPlay extends Component {
     constructor(props) {
         super(props);
 
@@ -48,7 +56,7 @@ export default class App extends Component {
             },
             numUsers: 0,
             userIDs: [],
-            groupFileName: "",
+            groupFileNames: [{ name: "" }],
             play: "false",
             stop: "false"
         }
@@ -96,34 +104,35 @@ export default class App extends Component {
 
                 this.setState({
                     numUsers: userCount
-                })
+                });
             } 
         }
 
-        console.log(this.state.userIDs);
-
         if(!userAdded) {
             window.alert("Please specify at least one user");
+        } else {
+            let userIDTemp = this.state.userIDs.concat();
+            userIDTemp.push(currentUserId);
+
+            this.setState({
+                userIDs: userIDTemp
+            })
         }
+
+        console.log(this.state.userIDs);
     }
 
-    shareFile = async () => {
+    shareFile = () => {
         let groupUsers = this.state.userIDs;
         for (const i in groupUsers) {
             groupPacket.group[i].userID = groupUsers[i];
         }
 
-        groupPacket.filename = this.state.groupFileName;
+        groupPacket.filenames = this.state.groupFileNames;
         
         // for debugging
         console.log(groupPacket);
 
-        // here for reference, if this is still exists please remove it
-/* 
-        Storage.put(jsonFilePrefix + '.json', packet)
-        .then (result => console.log(result))
-        .catch(err => console.log(err));
-*/
         // assign json file prefixes as per each user's UUID
         for (const i in groupUsers) {
             let prefix = groupUsers[i];
@@ -154,7 +163,6 @@ export default class App extends Component {
             .then(result => console.log(result))
             .catch(err => console.log(err));
         }
-
     }
 
     toggleStop = () => {
@@ -178,11 +186,34 @@ export default class App extends Component {
         }
     }
 
+    updateFileName = idx => event => {
+        const newFilenames = this.state.groupFileNames.map((filename, sidx) => {
+          if(idx !== sidx) {
+            return filename;
+          }
+
+          return { ...filename, name: event.target.value };
+        });
+
+        this.setState({ groupFileNames: newFilenames })
+      }
+
+    removeFilename = idx => () => {
+        this.setState({
+            groupFileNames: this.state.groupFileNames.filter((s, sidx) => idx !== sidx)
+        });
+    }
+
+    addFilename = () => {
+        this.setState({
+            groupFileNames: this.state.groupFileNames.concat([{ name: "" }])
+        });
+    }
+
     render() {
       return (
         <>
             <div>
-                <p>TODO: Add group play functionality</p>
                 <h3>Add Users to Group</h3>
                 <form onSubmit={ this.addUsersToGroup }>
                     <label>
@@ -239,16 +270,31 @@ export default class App extends Component {
                 </form>
             </div>
             <div>
-                <h3>Share Audio</h3>
-                <label>
-                    Filename:
-                    <input type="text" onChange={ (event) => {
-                        this.setState({
-                            groupFileName: event.target.value
-                        })
-                    } } />
-                </label>
-                <button onClick={this.shareFile}>Share</button>
+                <form>
+                  <h3> Share Audio </h3>
+                    { this.state.groupFileNames.map((filename, idx) => (
+                      <div>
+                        <input 
+                          type="text"
+                          placeholder={`File #${idx + 1}`}
+                          value={filename.name}
+                          onChange={this.updateFileName(idx)}
+                        />
+                        <button
+                          type="button"
+                          onClick={this.removeFilename(idx)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )) }
+                    <button
+                      type="button"
+                      onClick={this.addFilename}
+                    >Add File</button>
+                </form>
+                <p></p>
+                <button onClick={this.shareFile}>Share Playlist</button>
             </div>
             <div>
                 <p></p>
