@@ -155,27 +155,36 @@ def find_user_queue():
 
 
 def thread_download(bucket, bucket_obj, sqs_response):
-    for files in sqs_response[0]:
-        temp = files["name"]
-        tup = (temp, "")
-        filename = confirm_file_is_vaild(bucket, bucket_obj, tup)
-        print(filename)
+    if sqs_response[4] == True:
+        sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
+        sqs_response[1]["filenames"] = sqs_response[0]
+        socket_server_respond_request(conn, sqs_response[1])
+
+    else:
+        print("Error the received JSON from SQS is invaild")
+        print("Waiting for the next request before sending data to the audio engine")
+
     print("Thread Done")
 
 
-def message_file_check(sqs_response, target_bucket):
+def message_url_check(sqs_response, bucket,target_bucket):
     file_exists = 0
+    response = None
+    s3_client = boto3.client('s3')
     for files in sqs_response[0]:
+        response = ""
         temp = files["name"]
         for obj in target_bucket.objects.all():
             if temp in obj.key:
                 file_exists = 1
+                response = s3_client.generate_presigned_url('get_object', Params={'Bucket' : bucket, 'Key' : temp}, ExpiresIn=3600)
 
         if file_exists:
             file_exists = 0
+            files["name"] = response
         else:
-            files["name"] = ""
             file_exists = 0
+            files["name"] = ""
 
     return sqs_response
 
@@ -188,8 +197,8 @@ if __name__ == '__main__':
     fileName = None
     queue_id = None
     thread = None
-    #s = socket_server_init()
-    #conn = socket_server_accept_connection(s)
+    s = socket_server_init()
+    conn = socket_server_accept_connection(s)
     registration = find_user_queue()
 
     if registration[1] == False:
@@ -228,17 +237,15 @@ if __name__ == '__main__':
 
             thread = threading.Thread(target=thread_download, args=(bucket,bucket_obj, sqs_response))
             thread.start()
-            if sqs_response[4] == True:
-                sqs_response = message_file_check(sqs_response, bucket_obj)
-                sqs_response[1]["filenames"] = sqs_response[0]
-                #socket_server_respond_request(conn, sqs_response[1])
-                print("Message Sent")
+            #if sqs_response[4] == True:
+            #    sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
+            #    sqs_response[1]["filenames"] = sqs_response[0]
+            #    socket_server_respond_request(conn, sqs_response[1])
 
-            else:
-                print("Error the received JSON from SQS is invaild")
-                print("Waiting for the next request before sending data to the audio engine")
+            #else:
+            #   print("Error the received JSON from SQS is invaild")
+            #    print("Waiting for the next request before sending data to the audio engine")
 
 #This can shutdown gracefully if you press control + c.
         except KeyboardInterrupt:
-            #s.close()
-            print("HI")
+            s.close()
