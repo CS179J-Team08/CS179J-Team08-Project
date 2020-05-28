@@ -516,6 +516,23 @@ void dspEngine::setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lo
 	}
 }
 
+vector<float> dspEngine::getEqParameters(string systemID, FMOD_DSP_TYPE dspType)
+{
+	vector<float> values;
+	float param0, param1, param2;
+	FMOD::DSP *eq;
+	if (checkDSPInSystem(systemID, dspType, &eq))
+	{
+		audioEngine::errorCheck(eq->getParameterFloat(0, &param0, 0, 0));
+		values.push_back(param0);
+		audioEngine::errorCheck(eq->getParameterFloat(1, &param1, 0, 0));
+		values.push_back(param1);
+		audioEngine::errorCheck(eq->getParameterFloat(2, &param2, 0, 0));
+		values.push_back(param2);
+	}
+	return values;
+}
+
 bool dspEngine::checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput)
 {
 	auto inst = FMOD_Handler::instance();

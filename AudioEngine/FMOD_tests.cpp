@@ -136,13 +136,29 @@ TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
 	// Add Echo
 	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
 	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 10, 20, 3.0, -4.0);
-	vector<float> params = a->getEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO); //TODO: Get the vector to fill up with values
+	vector<float> params = a->getEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO);
 	REQUIRE(params.at(0) == 10);
 	REQUIRE(params.at(1) == 20);
 	REQUIRE(params.at(2) == 3.0);
 	REQUIRE(params.at(3) == -4.0);
-	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_DISTORTION);
+	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
 }
+
+TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test EQ");
+	// Add Eq
+	a->addDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
+	a->setEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ, 5, -20, 4.6);
+	vector<float> params = a->getEQParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ); 
+	REQUIRE(params.at(0) == 5);
+	REQUIRE(params.at(1) == -20);
+	REQUIRE(params.at(2) == 4.6);
+	a->removeDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
+}
+
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
 	auto inst = FMOD_Handler::instance();
