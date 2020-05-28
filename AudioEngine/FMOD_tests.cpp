@@ -152,7 +152,7 @@ TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
 	// Add Eq
 	a->addDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
 	a->setEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ, 5, -20, 4.6);
-	vector<float> params = a->getEQParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ); 
+	vector<float> params = a->getEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ); 
 	REQUIRE(params.at(0) == 5);
 	REQUIRE(params.at(1) == -20);
 	REQUIRE(params.at(2) == 4.6);
