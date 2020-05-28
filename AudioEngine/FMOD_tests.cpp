@@ -150,4 +150,3 @@ TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
 	REQUIRE(volume == 56234.13251f);
 }
-

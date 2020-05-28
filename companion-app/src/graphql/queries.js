@@ -6,7 +6,12 @@ export const getAudio = /* GraphQL */ `
     getAudio(id: $id) {
       id
       name
-      description
+      owner
+      file {
+        bucket
+        region
+        key
+      }
     }
   }
 `;
@@ -20,7 +25,37 @@ export const listAudios = /* GraphQL */ `
       items {
         id
         name
-        description
+        owner
+        file {
+          bucket
+          region
+          key
+        }
+      }
+      nextToken
+    }
+  }
+`;
+export const getFriend = /* GraphQL */ `
+  query GetFriend($id: ID!) {
+    getFriend(id: $id) {
+      id
+      username
+      owner
+    }
+  }
+`;
+export const listFriends = /* GraphQL */ `
+  query ListFriends(
+    $filter: ModelFriendFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listFriends(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        username
+        owner
       }
       nextToken
     }

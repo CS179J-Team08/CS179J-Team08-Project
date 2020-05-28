@@ -31,6 +31,29 @@ def test_sqs_with_vaild_json():
     response = mock_SQS_queue(json_data)
     assert response[4] == True
 
+def test_sqs_playback_options_match():
+    data = {
+   "group": [
+      {"userID": "TutorialTestQueue"},
+      {"userID": ""},
+      {"userID": ""},
+      {"userID": ""},
+      {"userID": ""}
+   ],
+   "filename": "Igorr- Downgrade Desert.flac",
+   "play": "false",
+   "parameters":   {
+      "volume":"0.0"
+   }
+}
+
+    json_data = json.dumps(data)
+    response = mock_SQS_queue(json_data)
+    assert response[4] == True
+    assert response[3] == "0.0"
+    assert response[2] == "false"
+    assert response[0] == "Igorr- Downgrade Desert.flac"
+
 def test_sqs_with_invaild_json():
     data = {"group": [{"userID": "TutorialTestQueue"},{"userID": ""},{"userID": ""},{"userID": ""},{"userID": ""}],}
     data_1 = {"group": [{"userID": "TutorialTestQueue"},{"userID": ""},{"userID": ""},{"userID": ""},{"userID": ""}], "play": "true","parameters":   {"volume":"0"}}
@@ -85,7 +108,7 @@ def test_sqs_with_volume_option_invaild():
    "filename": "Igorr- Downgrade Desert.flac",
    "play": "true",
    "parameters":   {
-      "volume":"1.2abcd"
+      "volume":"1.1a"
    }
 }
     json_data = json.dumps(data)

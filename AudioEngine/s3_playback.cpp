@@ -155,15 +155,22 @@ int main()
     {
         server_client_await_request(sockfd, dataPtr, &servaddr);
 //        printf("This is what is in the data buffer: %s\n", dataPtr);
-
+	
         // start parser
         string jsonDataPacket(dataPtr);
+	cout << jsonDataPacket;
+	cout << "Packet converted to string\n";
 	parser.parseData(jsonDataPacket);
+	cout << "Data parsed\n";
         audioSettings = parser.getCurrentRequest();
 
         cout << "filename: " << audioSettings.filename << '\n';
         cout << "Play: " << audioSettings.play << '\n';
         cout << "Volume: " << audioSettings.volume << '\n';
+
+	parser.applyRequest();
+	cout << "request applied\n";
+	parser.update();
     }
 
 /*
