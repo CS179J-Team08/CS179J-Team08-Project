@@ -495,11 +495,12 @@ vector<float> dspEngine::getEchoParameters(string systemID, FMOD_DSP_TYPE dspTyp
 	{
 		audioEngine::errorCheck(echo->getParameterFloat(0, &param0, 0, 0));
 		values.push_back(param0);
-		audioEngine::errorCheck(echo->getParameterFloat(0, &param1, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(1, &param1, 0, 0));
 		values.push_back(param1);
-		audioEngine::errorCheck(echo->getParameterFloat(0, &param2, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(2, &param2, 0, 0));
 		values.push_back(param2);
-		audioEngine::errorCheck(echo->getParameterFloat(0, &param3, 0, 0));
+		audioEngine::errorCheck(echo->getParameterFloat(3, &param3, 0, 0));
+		values.push_back(param3);
 	}
 	return values;
 }

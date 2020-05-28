@@ -104,17 +104,18 @@ TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDS
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new dspEngine();
+	inst->addSystem("Test Add");
 	// Add One, Remove One
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	auto mDSPIt = inst->_mDSP.find("Test Add");
-	REQUIRE(mDSPIt == inst->_mDSP.end());
+	REQUIRE(mDSPIt != inst->_mDSP.end());
 	a->removeDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	REQUIRE(inst->_mDSP.empty());
 	
 	// Add One, "Remove All"
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_PARAMEQ);
 	mDSPIt = inst->_mDSP.find("Test Add");
-	REQUIRE(mDSPIt == inst->_mDSP.end());
+	REQUIRE(mDSPIt != inst->_mDSP.end());
 	a->removeAllDSPEffectsInSystem("Test Add");
 	REQUIRE(inst->_mDSP.empty());
 	
@@ -131,6 +132,7 @@ TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new dspEngine();
+	inst->addSystem("Test Echo");
 	// Add Echo
 	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
 	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 10, 20, 3.0, -4.0);
