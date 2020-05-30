@@ -623,28 +623,28 @@ vector<float> dspEngine::getFlangeParameters(string systemID, FMOD_DSP_TYPE dspT
 	FMOD::DSP *flange;
 	if (checkDSPInSystem(systemID, dspType, &flange))
 	{
-		audioEngine::errorCheck(eq->getParameterFloat(0, &param0, 0, 0));
+		audioEngine::errorCheck(flange->getParameterFloat(0, &param0, 0, 0));
 		values.push_back(param0);
-		audioEngine::errorCheck(eq->getParameterFloat(1, &param1, 0, 0));
+		audioEngine::errorCheck(flange->getParameterFloat(1, &param1, 0, 0));
 		values.push_back(param1);
-		audioEngine::errorCheck(eq->getParameterFloat(2, &param2, 0, 0));
+		audioEngine::errorCheck(flange->getParameterFloat(2, &param2, 0, 0));
 		values.push_back(param2);
 	}
 	return values;
 }
 
-vector<float> dspEngine::getEqParameters(string systemID, FMOD_DSP_TYPE dspType)
+vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
 	float param0, param1, param2;
 	FMOD::DSP *pitchshift;
 	if (checkDSPInSystem(systemID, dspType, &pitchshift))
 	{
-		audioEngine::errorCheck(eq->getParameterFloat(0, &param0, 0, 0));
+		audioEngine::errorCheck(pitchshift->getParameterFloat(0, &param0, 0, 0));
 		values.push_back(param0);
-		audioEngine::errorCheck(eq->getParameterFloat(1, &param1, 0, 0));
+		audioEngine::errorCheck(pitchshift->getParameterFloat(1, &param1, 0, 0));
 		values.push_back(param1);
-		audioEngine::errorCheck(eq->getParameterFloat(2, &param2, 0, 0));
+		audioEngine::errorCheck(pitchshift->getParameterFloat(2, &param2, 0, 0));
 		values.push_back(param2);
 	}
 	return values;
