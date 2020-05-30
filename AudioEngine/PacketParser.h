@@ -46,7 +46,7 @@ private:
 };
 
 /*
-
+ 
 New packet syntax:
 let packet = {
   group: [
@@ -91,8 +91,8 @@ Old packet syntax:
   parameters: {
 	volume: 0.0
   }
-}
+} 
 
-*/
+*/   
 
 #endif 
