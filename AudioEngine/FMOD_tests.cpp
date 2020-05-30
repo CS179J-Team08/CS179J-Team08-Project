@@ -148,7 +148,7 @@ TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
 	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
 }
 
-TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
+TEST_CASE("DSP Test: EQ effects", "[dspEffects::setEqParameters]")
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new dspEngine();
@@ -161,7 +161,36 @@ TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
 	REQUIRE(params.at(1) == -20);
 	REQUIRE(params.at(2) == 4.6f);
 	a->removeDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
+}
 
+TEST_CASE("DSP Test: Flange effects", "[dspEffects::setFlangeParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test Flange");
+	// Add Flange
+	a->addDSPEffect("Test Flange", FMOD_DSP_TYPE_FLANGE);
+	a->setFlangeParameters("Test Flange", FMOD_DSP_TYPE_FLANGE, 50, 0.01, 10);
+	vector<float> params = a->getFlangeParameters("Test EQ", FMOD_DSP_TYPE_FLANGE); 
+	REQUIRE(params.at(0) == 50);
+	REQUIRE(params.at(1) == 0.01);
+	REQUIRE(params.at(2) == 10);
+	a->removeDSPEffect("Test Flange", FMOD_DSP_TYPE_FLANGE);
+}
+
+TEST_CASE("DSP Test: PitchShift effects", "[dspEffects::setPitchShiftParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test Pitch");
+	// Add PitchShift
+	a->addDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
+	a->setPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT, 1, 1024, 0);
+	vector<float> params = a->getPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT); 
+	REQUIRE(params.at(0) == 1);
+	REQUIRE(params.at(1) == 1024);
+	REQUIRE(params.at(2) == 0);
+	a->removeDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
 }
 
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
