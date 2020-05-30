@@ -155,6 +155,7 @@ int main()
     while(1)   
     {
 	result = 0;
+	parser.update();
         //server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("Listening to the child process\n");
 	result = read(pipefd[0], dataPtr, 1024);
