@@ -1,5 +1,5 @@
 #include "AudioEngine.h"
-
+#include <iostream>
 
 FMOD_Handler::FMOD_Handler()
 {
@@ -131,9 +131,9 @@ void audioEngine::update()
 
 	if(songFinished)
 	{
-	        if()
+	        if(!inst->playlist.empty())
 	        {
-		        audioEngine e;
+		        audioEngine a;
 		        a.loadSound("mainSystem", inst->playlist.front(), false, false, true); //assumes one system, which in our current implementation is true
 		        a.aePlaySound("mainSystem", inst->playlist.front());
 		        inst->playlist.pop();
@@ -178,9 +178,10 @@ void audioEngine::loadSound(string systemID, const string& strSoundName, bool b3
 	modeMask |= b3d ? FMOD_3D : FMOD_2D; //I think generally we're going to keep all audio 3d. May remove
 	modeMask |= bLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 	modeMask |= bStream ? FMOD_CREATESTREAM : FMOD_CREATECOMPRESSEDSAMPLE;
-
+	//	cout << inst->playlist.front().c_str() << endl;
+	const char *c = inst->playlist.front().c_str();
 	FMOD::Sound *sound = NULL;
-	audioEngine::errorCheck(inst->_mSystems[systemID]->createSound(strSoundName.c_str(), modeMask, nullptr, &sound));
+	audioEngine::errorCheck(inst->_mSystems[systemID]->createSound(c, modeMask, nullptr, &sound));
 
 	inst->_dSounds[systemID][strSoundName] = sound;
 }
@@ -211,7 +212,7 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, float 
 	//get the sound map from sound directory via systemID
 	//TODO: catch potential out-of-range exception from map.at
 	auto mSounds = inst->_dSounds.at(systemID);
-	auto soundIt = mSounds.find(strSoundName);
+	auto soundIt = mSounds.find(inst->playlist.front().c_str());
 
 	//if the sound has not been loaded yet, load it
 	if (soundIt == mSounds.end())

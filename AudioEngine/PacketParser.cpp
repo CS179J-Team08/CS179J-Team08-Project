@@ -2,6 +2,7 @@
 #include "PacketParser.h"
 #include <stdio.h>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -50,9 +51,9 @@ void packetParser::parseData(string packet)
 			        //request.filename = prefix;
     			        char *url = new char[https.size() + packet.size() + 1];
 				strncpy(url, "https:", https.size() + packet.size() + 1);
-				strncat(url, *(it + 2), https.size() + packet.size() + 1);
-
-				inst->playlist.push(url);
+				strncat(url, *(it + 3), https.size() + packet.size() + 1);
+				
+     				inst->playlist.push(url);
 			}
 		}
 		else if (strcmp(*it, "play") == 0)
@@ -209,25 +210,15 @@ void packetParser::parseData(string packet)
 }
 
 void packetParser::applyRequest()
-{
-        update(); //TODO: Should be moved out of this function, once process forking is implemented
-
+{        
         auto inst = FMOD_Handler::instance();
 	auto d = dspEngine();
 	int channelID;
 	addSystem("mainSystem");
-
-	//auto atcIt = inst->_mAudioToChannel.find(request.filename);
+      
 	if (request.stop == true)
 	{
-	  /*
-		auto channel = inst->_mAudioToChannel.find(request.filename);
-		if (channel != inst->_mAudioToChannel.end())
-		{
-			unloadChannel("mainSystem",  channel->second);
-			unloadSound("mainSystem", request.filename);
-		}
-	  */
+	  
 	        if(inst->currentChannel)
 		{
 		        inst->currentChannel->stop();
@@ -237,43 +228,20 @@ void packetParser::applyRequest()
 	{
 		if (request.play)
 		{
-		  /*
-			if (atcIt == inst->_mAudioToChannel.end())
-			{
-			        unloadAllChannelsInSystem("mainSystem");
-				channelID = aePlaySound("mainSystem", request.filename);
-				inst->_mAudioToChannel[request.filename] = channelID;
-				inst->_mChannelToAudio[channelID] = request.filename;
-				atcIt = inst->_mAudioToChannel.find(request.filename);
-			}
-			else
-			{
-				setPauseOnChannel("mainSystem", atcIt->second, false);
-			}
-		  */
+
 		        if(inst->currentChannel)
 			{
   			        setPauseOnCurrentChannel("mainSystem", false);
 			}
 			else
-			{
+			{		  
 			        loadSound("mainSystem", inst->playlist.front(), false, false, true);
 				aePlaySound("mainSystem", inst->playlist.front());
 				inst->playlist.pop();
 			}
 		}
 		else //request.play == false
-		{
-		  /*
-			if (atcIt == inst->_mAudioToChannel.end())
-			{
-				loadSound("mainSystem", request.filename);
-			}
-			else
-			{
-				setPauseOnChannel("mainSystem", atcIt->second, true);
-			}
-		  */
+		{		  
 		        if(inst->currentChannel)
 			{
 			        setPauseOnCurrentChannel("mainSystem", true);
@@ -282,12 +250,6 @@ void packetParser::applyRequest()
 
 		if (request.volume != 0.0)
 		{
-		  /*
-			if (atcIt != inst->_mAudioToChannel.end())
-			{
-				setChannelVolume("mainSystem", atcIt->second, request.volume);
-			}
-		  */
 		        if(inst->currentChannel)
 			{
 			        setCurrentChannelVolume("mainSystem", request.volume);

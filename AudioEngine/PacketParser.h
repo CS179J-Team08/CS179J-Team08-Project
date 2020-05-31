@@ -26,7 +26,7 @@ struct eqEffect
 struct dataPacket
 {
 	vector<char*> usernames;
-	char *filename;
+        //char *filename;
 	bool play;
 	bool stop;
 	float volume;
