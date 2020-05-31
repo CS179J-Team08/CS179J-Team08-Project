@@ -1,12 +1,17 @@
 import boto3
+import pickle
 import sys
 import socket
 import time
 import json
+import threading
 import os.path
 from os import path
 from receivePacket import await_SQS_response
 from receivePacket import sqs_init
+from receivePacket import sqs_register_device
+from receivePacket import listen_for_registration
+
 #Definitions of the HOST and PORT to use for the socket connection
 HOST = 'localhost'	# Symbolic name meaning all available interfaces
 PORT = 12345	# Arbitrary non-privileged port
@@ -75,6 +80,7 @@ def socket_server_accept_connection(s):
         sys.exit()
     else:
         conn.sendall(bytes(str(length), 'utf-8'))
+        time.sleep(0.001)
         conn.sendall(vaild_connection)
         print ("Message sent to the client")
     return conn
@@ -91,9 +97,8 @@ def socket_server_respond_request(conn, data):
     reply = bytes(str(data), 'utf-8')
     length = len(reply.decode())
     print("Length of queue message: " + str(length))
-  #  time.sleep(5)
     conn.sendall(bytes(str(length), 'utf-8'))
-   # time.sleep(5)
+    time.sleep(0.001)
     conn.sendall(reply)
 
 
@@ -107,7 +112,6 @@ def socket_server_respond_request(conn, data):
 def aws_download(bucketName, fileName, storageResult):
     #Initialize a boto3 resource
     s3 = boto3.resource('s3')
-    print(fileName)
     #Begin to download the specified fileName
     storage_path = "../AudioEngine/audio/" + storageResult
     if path.exists(storage_path) == False:
@@ -136,9 +140,53 @@ def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
             #We call aws_download and pass the bucket we want to download from, the exact path to the file for download, and the user specified file name for the given download
             fileName = aws_download(bucket_path, obj.key, target_data[0])
             return fileName
-    print ("file not found")
+    print ("Requested file was not found. Awaiting for next queue message")
     return "file not found"
 
+def find_user_queue():
+    with open('device.json', 'r') as device:
+        data = json.load(device)
+
+    print(data)
+    if data["queue"] == "empty":
+        return (data, False)
+    else:
+        return (data, True)
+
+
+def thread_download(bucket, bucket_obj, sqs_response):
+    if sqs_response[4] == True:
+        sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
+        sqs_response[1]["filenames"] = sqs_response[0]
+        socket_server_respond_request(conn, sqs_response[1])
+
+    else:
+        print("Error the received JSON from SQS is invaild")
+        print("Waiting for the next request before sending data to the audio engine")
+
+    print("Thread Done")
+
+
+def message_url_check(sqs_response, bucket,target_bucket):
+    file_exists = 0
+    response = None
+    s3_client = boto3.client('s3')
+    for files in sqs_response[0]:
+        response = ""
+        temp = files["name"]
+        for obj in target_bucket.objects.all():
+            if temp in obj.key:
+                file_exists = 1
+                response = s3_client.generate_presigned_url('get_object', Params={'Bucket' : bucket, 'Key' : temp}, ExpiresIn=3600)
+
+        if file_exists:
+            file_exists = 0
+            files["name"] = response
+        else:
+            file_exists = 0
+            files["name"] = ""
+
+    return sqs_response
 
 
 #Main function
@@ -147,23 +195,56 @@ if __name__ == '__main__':
     s = None
     conn = None
     fileName = None
+    queue_id = None
+    thread = None
     s = socket_server_init()
     conn = socket_server_accept_connection(s)
+    registration = find_user_queue()
+
+    if registration[1] == False:
+        print("This device is not connected to the web app")
+        message_queue = sqs_register_device()
+        while queue_id == None:
+            queue_id = listen_for_registration(message_queue)
+            print(queue_id)
+        registration[0]["queue"] = queue_id
+        new_json = { "device" : "", "queue" : ""}
+        new_json["device"] = registration[0]["device"]
+        new_json["queue"] = registration[0]["queue"]
+        json_obj = json.dumps(new_json)
+        with open('device.json', 'w') as json:
+            json.write(json_obj)
+        print("Device was registered")
+
+    else:
+        print("assigning the user queue to the specified value in device.json")
+        queue_id = registration[0]["queue"]
+        #assign queue value to python queue
+
+
     server_client =  boto3.resource('s3')
     bucket = "cs-audiofile-bucketdefault-default"
-    message_queue = sqs_init()
+    message_queue = sqs_init(queue_id)
+
     while 1:
         try:
             bucket_obj = server_client.Bucket(bucket)
             sqs_response = await_SQS_response(message_queue)
-            if sqs_response[4] == True:
-                confirm_file_is_vaild(bucket, bucket_obj, sqs_response)
-                print(sqs_response[1])
-                socket_server_respond_request(conn, sqs_response[1])
-                #socket_server_respond_request(conn, sqs_response[0])
-            else:
-                print("Error the received JSON from SQS is invaild")
-                print("Waiting for the next request before sending data to the audio engine")
+            if thread == None:
+                pass
+            elif thread.is_alive():
+                thread.join()
+
+            thread = threading.Thread(target=thread_download, args=(bucket,bucket_obj, sqs_response))
+            thread.start()
+            #if sqs_response[4] == True:
+            #    sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
+            #    sqs_response[1]["filenames"] = sqs_response[0]
+            #    socket_server_respond_request(conn, sqs_response[1])
+
+            #else:
+            #   print("Error the received JSON from SQS is invaild")
+            #    print("Waiting for the next request before sending data to the audio engine")
 
 #This can shutdown gracefully if you press control + c.
         except KeyboardInterrupt:
