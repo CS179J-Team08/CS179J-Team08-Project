@@ -153,7 +153,7 @@ TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
 
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
-  /*
+  
         auto inst = FMOD_Handler::instance();
 	auto a = new audioEngine();
 	a->init();
@@ -176,7 +176,7 @@ TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 	a->setCurrentChannelVolume(n, 1000.0);
 	REQUIRE(inst->currentChannel->getVolume(&volume) == FMOD_OK);
 	REQUIRE(volume == 56234.13251f); //Upper bound
-  */
+  
   /*
 	auto inst = FMOD_Handler::instance();
 	auto a = new audioEngine();
