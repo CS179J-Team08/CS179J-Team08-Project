@@ -171,7 +171,7 @@ TEST_CASE("DSP Test: Flange effects", "[dspEffects::setFlangeParameters]")
 	// Add Flange
 	a->addDSPEffect("Test Flange", FMOD_DSP_TYPE_FLANGE);
 	a->setFlangeParameters("Test Flange", FMOD_DSP_TYPE_FLANGE, 50, 0.01, 10);
-	vector<float> params = a->getFlangeParameters("Test FLANGE", FMOD_DSP_TYPE_FLANGE); 
+	vector<float> params = a->getFlangeParameters("Test Flange", FMOD_DSP_TYPE_FLANGE); 
 	REQUIRE(params.at(0) == 50);
 	REQUIRE(params.at(1) == 0.01);
 	REQUIRE(params.at(2) == 10);
@@ -189,6 +189,7 @@ TEST_CASE("DSP Test: PitchShift effects", "[dspEffects::setPitchShiftParameters]
 	vector<float> params = a->getPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT); 
 	REQUIRE(params.at(0) == 1);
 	REQUIRE(params.at(1) == 1024);
+	REQUIRE(params.at(2) == 4.0f)
 	REQUIRE(params.at(3) == 0);
 	a->removeDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
 }
