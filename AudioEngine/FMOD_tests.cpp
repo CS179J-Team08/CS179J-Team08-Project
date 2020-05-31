@@ -189,7 +189,7 @@ TEST_CASE("DSP Test: PitchShift effects", "[dspEffects::setPitchShiftParameters]
 	vector<float> params = a->getPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT); 
 	REQUIRE(params.at(0) == 1);
 	REQUIRE(params.at(1) == 1024);
-	REQUIRE(params.at(2) == 4.0f)
+	REQUIRE(params.at(2) == 4.0f);
 	REQUIRE(params.at(3) == 0);
 	a->removeDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
 }
