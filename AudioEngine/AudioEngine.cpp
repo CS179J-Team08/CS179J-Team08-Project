@@ -576,7 +576,7 @@ void dspEngine::setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, 
 	{
 		pitchshift->setParameterFloat(0, pitch);
 		pitchshift->setParameterFloat(1, fftsize);
-		pitchshift->setParameterFloat(2, maxchannels);
+		pitchshift->setParameterFloat(3, maxchannels);
 	}
 }
 
@@ -636,7 +636,7 @@ vector<float> dspEngine::getFlangeParameters(string systemID, FMOD_DSP_TYPE dspT
 vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
-	float param0, param1, param2;
+	float param0, param1, param2, param3;
 	FMOD::DSP *pitchshift;
 	if (checkDSPInSystem(systemID, dspType, &pitchshift))
 	{
@@ -646,6 +646,8 @@ vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE 
 		values.push_back(param1);
 		audioEngine::errorCheck(pitchshift->getParameterFloat(2, &param2, 0, 0));
 		values.push_back(param2);
+		audioEngine::errorCheck(pitchshift->getParameterFloat(3, &param3, 0, 0));
+		values.push_back(param3);	
 	}
 	return values;
 }
