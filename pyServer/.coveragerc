@@ -1,0 +1,7 @@
+[run]
+omit=
+    /usr/*
+    /home/pi/.local/lib/*
+
+[html]
+directory = coverage_html_report
