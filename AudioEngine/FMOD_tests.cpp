@@ -160,7 +160,7 @@ TEST_CASE("DSP Test: Flange effects", "[dspEffects::setFlangeParameters]")
 	a->setFlangeParameters("Test Flange", FMOD_DSP_TYPE_FLANGE, 50, 0.01, 10);
 	vector<float> params = a->getFlangeParameters("Test Flange", FMOD_DSP_TYPE_FLANGE); 
 	REQUIRE(params.at(0) == 50);
-	REQUIRE(params.at(1) == 0.01);
+	REQUIRE(params.at(1) == 0.01f);
 	REQUIRE(params.at(2) == 10);
 	a->removeDSPEffect("Test Flange", FMOD_DSP_TYPE_FLANGE);
 }
