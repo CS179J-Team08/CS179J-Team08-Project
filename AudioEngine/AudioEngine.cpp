@@ -218,7 +218,7 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, float 
 	if (soundIt == mSounds.end())
 	{
 		//Can't set bitmask this way, so it's generally better to load sounds manually
-		loadSound(systemID, strSoundName);
+     	        loadSound(systemID, strSoundName);
 		mSounds = inst->_dSounds.at(systemID);
 		soundIt = mSounds.find(strSoundName);
 	}
