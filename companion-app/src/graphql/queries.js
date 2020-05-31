@@ -36,3 +36,55 @@ export const listAudios = /* GraphQL */ `
     }
   }
 `;
+export const getFriend = /* GraphQL */ `
+  query GetFriend($id: ID!) {
+    getFriend(id: $id) {
+      id
+      username
+      owner
+    }
+  }
+`;
+export const listFriends = /* GraphQL */ `
+  query ListFriends(
+    $filter: ModelFriendFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listFriends(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        username
+        owner
+      }
+      nextToken
+    }
+  }
+`;
+export const getMessage = /* GraphQL */ `
+  query GetMessage($id: ID!) {
+    getMessage(id: $id) {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
+export const listMessages = /* GraphQL */ `
+  query ListMessages(
+    $filter: ModelMessageFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listMessages(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        owner
+        contents
+        recipients
+      }
+      nextToken
+    }
+  }
+`;

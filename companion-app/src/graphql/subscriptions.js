@@ -43,3 +43,60 @@ export const onDeleteAudio = /* GraphQL */ `
     }
   }
 `;
+export const onCreateFriend = /* GraphQL */ `
+  subscription OnCreateFriend {
+    onCreateFriend {
+      id
+      username
+      owner
+    }
+  }
+`;
+export const onUpdateFriend = /* GraphQL */ `
+  subscription OnUpdateFriend {
+    onUpdateFriend {
+      id
+      username
+      owner
+    }
+  }
+`;
+export const onDeleteFriend = /* GraphQL */ `
+  subscription OnDeleteFriend {
+    onDeleteFriend {
+      id
+      username
+      owner
+    }
+  }
+`;
+export const onCreateMessage = /* GraphQL */ `
+  subscription OnCreateMessage {
+    onCreateMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
+export const onUpdateMessage = /* GraphQL */ `
+  subscription OnUpdateMessage {
+    onUpdateMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
+export const onDeleteMessage = /* GraphQL */ `
+  subscription OnDeleteMessage {
+    onDeleteMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
