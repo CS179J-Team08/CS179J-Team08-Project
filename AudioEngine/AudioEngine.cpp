@@ -1,11 +1,10 @@
 #include "AudioEngine.h"
-
+#include <iostream>
 
 FMOD_Handler::FMOD_Handler()
 {
-	//_system = NULL;
-	//audioEngine::errorCheck(FMOD::System_Create(&_system));
 	_nextChannelID = 0;
+	currentChannel = NULL;
 }
 
 FMOD_Handler::~FMOD_Handler()
@@ -78,10 +77,11 @@ void FMOD_Handler::removeSystem(string systemID)
 Go through the channel directory and free channels that are not playing audio
 Then, update each system
 */
-void FMOD_Handler::update()
+int FMOD_Handler::update()
 {
 	vector<_ChannelMap::iterator> channelsToFree;
-
+	int ret = 0;
+	
 	for (auto dirIt = _dChannels.begin(); dirIt != _dChannels.end(); dirIt++)
 	{
 		for (auto mapIt = dirIt->second.begin(); mapIt != dirIt->second.end(); mapIt++)
@@ -90,6 +90,7 @@ void FMOD_Handler::update()
 			mapIt->second->isPlaying(&playing);
 			if (!playing)
 			{
+			        ret = 1;
 			        string strSoundName = _mChannelToAudio[mapIt->first];
 				_mChannelToAudio.erase(mapIt->first);
 				_mAudioToChannel.erase(strSoundName);
@@ -109,6 +110,8 @@ void FMOD_Handler::update()
 	{
 		audioEngine::errorCheck(sysIt->second->update());
 	}
+
+	return ret;
 }
 
 int FMOD_Handler::getNextChannelID()
@@ -124,7 +127,22 @@ void audioEngine::init()
 void audioEngine::update()
 {
 	auto inst = FMOD_Handler::instance();
-	inst->update();
+	bool songFinished = inst->update();
+
+	if(songFinished)
+	{
+	        if(!inst->playlist.empty())
+	        {
+		        audioEngine a;
+		        a.loadSound("mainSystem", inst->playlist.front(), false, false, true); //assumes one system, which in our current implementation is true
+		        a.aePlaySound("mainSystem", inst->playlist.front());
+		        inst->playlist.pop();
+	        }
+		else
+		{
+		        inst->currentChannel = NULL;
+		}
+        }
 }
 
 void audioEngine::addSystem(string systemID)
@@ -160,9 +178,10 @@ void audioEngine::loadSound(string systemID, const string& strSoundName, bool b3
 	modeMask |= b3d ? FMOD_3D : FMOD_2D; //I think generally we're going to keep all audio 3d. May remove
 	modeMask |= bLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 	modeMask |= bStream ? FMOD_CREATESTREAM : FMOD_CREATECOMPRESSEDSAMPLE;
-
+	//	cout << inst->playlist.front().c_str() << endl;
+	const char *c = inst->playlist.front().c_str();
 	FMOD::Sound *sound = NULL;
-	audioEngine::errorCheck(inst->_mSystems[systemID]->createSound(strSoundName.c_str(), modeMask, nullptr, &sound));
+	audioEngine::errorCheck(inst->_mSystems[systemID]->createSound(c, modeMask, nullptr, &sound));
 
 	inst->_dSounds[systemID][strSoundName] = sound;
 }
@@ -193,13 +212,13 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, float 
 	//get the sound map from sound directory via systemID
 	//TODO: catch potential out-of-range exception from map.at
 	auto mSounds = inst->_dSounds.at(systemID);
-	auto soundIt = mSounds.find(strSoundName);
+	auto soundIt = mSounds.find(inst->playlist.front().c_str());
 
 	//if the sound has not been loaded yet, load it
 	if (soundIt == mSounds.end())
 	{
 		//Can't set bitmask this way, so it's generally better to load sounds manually
-		loadSound(systemID, strSoundName);
+     	        loadSound(systemID, strSoundName);
 		mSounds = inst->_dSounds.at(systemID);
 		soundIt = mSounds.find(strSoundName);
 	}
@@ -224,6 +243,7 @@ int audioEngine::aePlaySound(string systemID, const string& strSoundName, float 
 		audioEngine::errorCheck(playChannel->setPaused(false));
 
 		inst->_dChannels[systemID][channelID] = playChannel;
+		inst->currentChannel = playChannel;
 	}
 
 	return channelID;
@@ -303,6 +323,20 @@ void audioEngine::setPauseOnChannel(string systemID, int channelID, bool pause)
 	}
 }
 
+void audioEngine::setPauseOnCurrentChannel(string systemID, bool pause)
+{
+        auto inst = FMOD_Handler::instance();
+	auto dChannelIt = inst->_dChannels.find(systemID);
+
+	if(dChannelIt != inst->_dChannels.end())
+	{
+	        if(inst->currentChannel)
+	        {
+      		        inst->currentChannel->setPaused(pause);
+	        }
+	}
+}
+
 void audioEngine::setChannelVolume(string systemID, int channelID, float fVolumedB)
 {
 	auto inst = FMOD_Handler::instance();
@@ -327,6 +361,33 @@ void audioEngine::setChannelVolume(string systemID, int channelID, float fVolume
 
 			newVolume = dbToVolume(newVolume);
 			errorCheck(mChannelIt->second->setVolume(newVolume));
+		}
+	}
+}
+
+void audioEngine::setCurrentChannelVolume(string systemID, float fVolumedB)
+{
+        auto inst = FMOD_Handler::instance();
+	auto dChannelIt = inst->_dChannels.find(systemID);
+	if (dChannelIt != inst->_dChannels.end())
+	{
+	        if (inst->currentChannel)
+	        {
+		        float currentVolume;
+			inst->currentChannel->getVolume(&currentVolume);
+			currentVolume = volumeTodb(currentVolume);
+			float newVolume = currentVolume + fVolumedB;
+			if (newVolume < 0.0)
+			{
+			        newVolume = 0.0;
+			}
+			else if (newVolume > 95.0)
+			{
+			        newVolume = 95.0;
+			}
+			
+			newVolume = dbToVolume(newVolume);
+			errorCheck(inst->currentChannel->setVolume(newVolume));
 		}
 	}
 }

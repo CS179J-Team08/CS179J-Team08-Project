@@ -7,6 +7,7 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <queue>
 
 using namespace std;
 
@@ -22,11 +23,12 @@ class FMOD_Handler
 {
 public:	
 	static FMOD_Handler *instance();
-	void update();
+        int update();
 	void addSystem(string systemID);
 	void removeSystem(string systemID);
 	int getNextChannelID();
-
+        queue<string> playlist;
+  
 	typedef map<string, FMOD::System*> _SystemMap;      //Container for all FMOD systems
 	typedef map<string, FMOD::Sound*> _SoundMap;
 	typedef map<string, _SoundMap> _SoundDirectory;	    //left: System the SoundMap is set to
@@ -47,7 +49,8 @@ public:
         _ChannelToAudio _mChannelToAudio;
 	_SoundDirectory _dSounds;
 	_dspMap _mDSP;
-	
+        FMOD::Channel *currentChannel;
+  
 protected:
 	FMOD_Handler();
 	~FMOD_Handler();
@@ -77,7 +80,9 @@ public:
 	void unloadAllChannelsInSystem(string systemID); //Unload channels in a GIVEN system, not in ALL systems
 	void togglePauseOnChannel(string systemID, int channelID);
 	void setPauseOnChannel(string systemID, int channelID, bool pause);
+        void setPauseOnCurrentChannel(string systemID, bool pause);
 	void setChannelVolume(string systemID, int channelID, float fVolumedB);
+        void setCurrentChannelVolume(string systemID, float fVolumedB);
 	bool aeIsPlaying(string systemID, int channelID) const; //distinct from FMOD_Channel's isPlaying
 
 	float dbToVolume(float fVolumedB);

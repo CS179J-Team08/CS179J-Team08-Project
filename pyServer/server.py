@@ -177,7 +177,7 @@ def message_url_check(sqs_response, bucket,target_bucket):
         for obj in target_bucket.objects.all():
             if temp in obj.key:
                 file_exists = 1
-                response = s3_client.generate_presigned_url('get_object', Params={'Bucket' : bucket, 'Key' : temp}, ExpiresIn=3600)
+                response = s3_client.generate_presigned_url('get_object', Params={'Bucket' : bucket, 'Key' : obj.key}, ExpiresIn=3600)
 
         if file_exists:
             file_exists = 0
