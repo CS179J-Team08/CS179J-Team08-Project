@@ -17,3 +17,10 @@ type Friend @model {
   username: String
   owner: String
 }
+
+type Message @model {
+  id: ID!
+  owner: String!
+  contents: String!
+  recipients: [String]
+}

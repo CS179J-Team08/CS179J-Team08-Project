@@ -7,15 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
 #include <fstream>
-#include "json.hpp"
+#include <fcntl.h>
 
-using json = nlohmann::json;
 //Arbitrary port number needed for connection to python program.
 #define PORT 12345
 
@@ -80,27 +80,6 @@ void sig_Handler(int sockfd)   {
 	exit(1);
 }
 
-string parse_json_for_filename(json audio_options)   {
-	json::iterator iter = audio_options.begin();
-	struct stat buffer;
-	string fileName = iter.value();
-	if(stat(fileName.c_str(), &buffer) == 0)   {
-		return iter.value();
-	}
-	else   { 
-		return "Does not exist";
-	}
-}
-
-bool verify_json_exists(string fileName)   {
-	struct stat buffer;
-	if(stat(fileName.c_str(), &buffer) == 0)   {
-		return true;
-	}
-	else   {
-		return false;
-	}
-}
 
 int main()
 {
@@ -111,8 +90,12 @@ int main()
     char *client_ack = "Connection to server from AudioEngine";
     char *client_request = "Requesting a file for playback";
     char *dataPtr = dataBuffer;
+    int pipefd[2];
+    pid_t pid;
+
     packetParser parser; // for parsing json string packets
     dataPacket audioSettings; // data packet with audio settings
+    
     //Initialzation of our sigIntHandler. Here we assign our sigIntHandler the function to execute and to what specific signal it should catch. The SIGINT signal is what is sent when we press control + c on the keyboard
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = sig_Handler;
@@ -120,8 +103,8 @@ int main()
     sigIntHandler.sa_flags = 0;
     sigaction(SIGINT, &sigIntHandler, NULL);
     struct sockaddr_in servaddr;
-    json audio_options;
 
+    /*
     //Init the client
     server_client_init(&sockfd, &servaddr);
 
@@ -130,76 +113,84 @@ int main()
     result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
     printf("Result: %d\n", result);
     printf("Message sent!\n");
-//	sleep(5);
+    */
+    
+    if(pipe(pipefd) == -1)   {
+	    perror("pipe");
+	    exit(1);
+    }
+
+    if(fcntl(pipefd[0], F_SETFL, O_NONBLOCK) < 0)   {
+	    exit(1);
+    }
+
+    pid = fork();
+
+
+    if(pid == 0)   {
+
+	    server_client_init(&sockfd, &servaddr);
+	    //Send a response to acknowledge the connection from client to server
+	    printf("Sending Client Connection\n");
+	    result = sendto(sockfd, client_ack, strlen(client_ack), 0, NULL, 0);
+	    printf("Result: %d\n", result);
+	    printf("Message sent!\n");
+	    server_client_await_request(sockfd, dataPtr, &servaddr);
+	    printf("Message from server: %s \n", dataPtr);
+	    printf("Child process is listening to the server\n");
+	    close(pipefd[0]);
+	    while(1)    {
+		server_client_await_request(sockfd, dataPtr, &servaddr);
+		printf("Sending data to parent process\n");
+		write(pipefd[1], dataPtr, strlen(dataPtr)+1);
+	    }
+    }
+
+
 
     //Wait for the server's response 
-    server_client_await_request(sockfd, dataPtr, &servaddr);
+    //server_client_await_request(sockfd, dataPtr, &servaddr);
 
-    /*
-    //Initiate a request for file playback by sending a request
-    printf("Sending request for playback info\n");
-    sleep(5);
-    result = sendto(sockfd, client_request, strlen(client_request), 0, NULL, 0);
-    printf("Result: %d\n", result);
-    sleep(5);
-
-    //Await the response of the playback request
-    server_client_await_request(sockfd, dataPtr, &servaddr);
-    printf("Waiting for file to playback\n");
-    sleep(5);
-
-    //Now wait for the file to play
-    */
-    printf("Listening to python server\n");
+    //printf("Listening to python server\n");
     while(1)   
     {
-        server_client_await_request(sockfd, dataPtr, &servaddr);
-//        printf("This is what is in the data buffer: %s\n", dataPtr);
+	result = 0;
+	parser.update();
+        //server_client_await_request(sockfd, dataPtr, &servaddr);
+	printf("Listening to the child process\n");
+	result = read(pipefd[0], dataPtr, 1024);
+	if(result == -1)   {
+		if(errno == EAGAIN)   {
+			printf("Pipe empty\n");
+			sleep(1);
+		}
+		else   {
+			perror("read");
+			exit(1);
+		}
+	}
+	else if(result == 0)   {
+		printf("Connection was cut. Ending parent process\n");
+		close(pipefd[0]);
+		exit(0);
+	}
+	else   {
 	
         // start parser
-        string jsonDataPacket(dataPtr);
-	cout << jsonDataPacket;
-	cout << "Packet converted to string\n";
-	parser.parseData(jsonDataPacket);
-	cout << "Data parsed\n";
-        audioSettings = parser.getCurrentRequest();
+		string jsonDataPacket(dataPtr);
+		cout << jsonDataPacket;
+		cout << "Packet converted to string\n";
+		parser.parseData(jsonDataPacket);
+		cout << "Data parsed\n";
+		audioSettings = parser.getCurrentRequest();
 
-        cout << "filename: " << audioSettings.filename << '\n';
-        cout << "Play: " << audioSettings.play << '\n';
-        cout << "Volume: " << audioSettings.volume << '\n';
+		cout << "filename: " << audioSettings.filename << '\n';
+		cout << "Play: " << audioSettings.play << '\n';
+		cout << "Volume: " << audioSettings.volume << '\n';
 
-	parser.applyRequest();
-	cout << "request applied\n";
-	parser.update();
+		parser.applyRequest();
+		cout << "request applied\n";
+		parser.update();
+	}
     }
-
-/*
-    if(verify_json_exists(jsonFile))   {
-            std::ifstream jsonStream(jsonFile);
-            jsonStream >> audio_options;
-    }
-    else   {
-            printf("Error the json given to the audio engine does not exist\nShutting down\n");
-            exit(0);
-    }
-
-    //Simple file playback that used the main code found in AudioEngine.cpp
-    //We just load the given file name from dataPtr into the audio engine and begin playback.
-    string n = "test System";
-    string m = parse_json_for_filename(audio_options);
-    if(m == "Does not exist")   {
-            printf("The file specified in the json does not exist. Shutting down\n");
-            exit(0);
-    }
-    auto ae = new audioEngine();
-    auto de = new dspEngine();
-    ae->init();
-    ae->addSystem(n);
-    ae->loadSound(n, m, true, true, false);
-    int id = ae->aePlaySound(n, m);
-    ae->setChannelVolume(n, id, 0);
-    //At this point we loop the track infinitely. Use control + c to shutdown the program gracefully.
-    while (1) { ae->update(); }
-    return 0; 
-    */
 }

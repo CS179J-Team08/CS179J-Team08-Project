@@ -70,3 +70,33 @@ export const onDeleteFriend = /* GraphQL */ `
     }
   }
 `;
+export const onCreateMessage = /* GraphQL */ `
+  subscription OnCreateMessage {
+    onCreateMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
+export const onUpdateMessage = /* GraphQL */ `
+  subscription OnUpdateMessage {
+    onUpdateMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
+export const onDeleteMessage = /* GraphQL */ `
+  subscription OnDeleteMessage {
+    onDeleteMessage {
+      id
+      owner
+      contents
+      recipients
+    }
+  }
+`;
