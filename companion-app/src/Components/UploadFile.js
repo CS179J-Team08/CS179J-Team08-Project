@@ -12,7 +12,9 @@ let packet = {
     { userID: "" },
     { userID: "" },
   ],
-  filename: "",
+  filenames: [ // dynamic
+    { name: "" }
+  ],
   play: false,
   stop: false,
   parameters: {
@@ -45,7 +47,7 @@ class UploadFile extends Component {
         super(props);
 
         this.state = {
-          Filename: "",
+          Filenames: [{ name: "" }],
           playValue: "true",
           stop: "false",
           volume: "0.0",
@@ -125,7 +127,7 @@ class UploadFile extends Component {
 
       // send data packet to public bucket directory
       sendPacket = () => {
-        packet.filename = this.state.Filename;
+        packet.filenames = this.state.Filenames;
         packet.play = this.state.playValue;
         packet.stop = this.state.stop;
         packet.parameters.volume = this.state.volume;
@@ -141,11 +143,11 @@ class UploadFile extends Component {
         
         // debugging purposes
         console.log(packet);
-//        console.log(packet.parameters.echo);
 
         Storage.put(jsonFilePrefix + '.json', packet)
         .then (result => console.log(result))
         .catch(err => console.log(err));
+
       }
 
       updatePlayState(event) {
@@ -161,9 +163,33 @@ class UploadFile extends Component {
           this.setState({ playValue: "false", stop: "false" });
         }
       }
-
+/*
       updateFileName(event) {
         this.setState({ Filename: event.target.value });
+      }
+*/
+      updateFileName = idx => event => {
+        const newFilenames = this.state.Filenames.map((filename, sidx) => {
+          if(idx !== sidx) {
+            return filename;
+          }
+
+          return { ...filename, name: event.target.value };
+        })
+
+        this.setState({ Filenames: newFilenames })
+      }
+
+      removeFilename = idx => () => {
+        this.setState({
+          Filenames: this.state.Filenames.filter((s, sidx) => idx !== sidx)
+        });
+      }
+
+      addFilename = () => {
+        this.setState({
+          Filenames: this.state.Filenames.concat([{ name: "" }])
+        });
       }
 
       updateVolume(event) {
@@ -222,11 +248,30 @@ class UploadFile extends Component {
                 <input type="file" onChange={this.uploadAudioFile} />
               </div>
               <div>
-                <h2>Play file</h2>
-                <label>
-                  Filename:
-                  <input type="text" onChange={this.updateFileName} />
-                </label>
+                <h2>Play Music</h2>
+                <form>
+                  <h3> Playlist </h3>
+                    { this.state.Filenames.map((filename, idx) => (
+                      <div>
+                        <input 
+                          type="text"
+                          placeholder={`File #${idx + 1}`}
+                          value={filename.name}
+                          onChange={this.updateFileName(idx)}
+                        />
+                        <button
+                          type="button"
+                          onClick={this.removeFilename(idx)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )) }
+                    <button
+                      type="button"
+                      onClick={this.addFilename}
+                    >Add File</button>
+                </form>
                 <label>
                   Play/Pause/Stop
                   <select onChange={this.updatePlayState}>
@@ -277,6 +322,7 @@ class UploadFile extends Component {
                   <input type="number" step="0.1" onChange={this.udpateEchoDryVolume} />
                 </label>
               </div>
+              <p></p>
               <button onClick={this.sendPacket}>Update Audio</button>
             </>
         );
