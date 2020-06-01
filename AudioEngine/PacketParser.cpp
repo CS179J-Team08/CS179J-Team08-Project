@@ -255,7 +255,28 @@ void packetParser::parseData(string packet)
 	printf("%f\n", request.eq.lowgain);
 	printf("%f\n", request.eq.midgain);
 	printf("%f\n", request.eq.highgain);
-	
+	printf("flange: \n"));
+	if (request.flange.apply)
+	{
+		printf("apply == true\n");
+	}
+	{
+		printf("apply == false\n");
+	}
+	printf("%f\n", request.flange.depth);
+	printf("%f\n", request.flange.mix);
+	printf("%f\n", request.flange.rate);
+	printf("pitchshift: \n");
+	if (request.pitchshift.apply)
+	{
+		printf("apply == true\n");
+	}
+	{
+		printf("apply == false\n");
+	}
+	printf("%f\n", request.pitchshift.pitch);
+	printf("%f\n", request.pitchshift.fftsize);
+	printf("%f\n", request.pitchshift.maxchannels);
 }
 
 void packetParser::applyRequest()
