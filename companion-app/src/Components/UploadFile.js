@@ -173,10 +173,10 @@ class UploadFile extends Component {
         packet.parameters.flange.mix = this.state.flangemix;
         packet.parameters.flange.depth = this.state.flangedepth;
         packet.parameters.flange.rate = this.state.flangerate;
-        packet.parameters.pitch.apply = this.state.pitchapply;
-        packet.parameters.pitch.pitch = this.state.pitchpitch;
-        packet.parameters.pitch.fft = this.state.pitchfft;
-        packet.parameters.pitch.channels = this.state.pitchchannels;
+        packet.parameters.pitchshift.apply = this.state.pitchapply;
+        packet.parameters.pitchshift.pitch = this.state.pitchpitch;
+        packet.parameters.pitchshift.fft = this.state.pitchfft;
+        packet.parameters.pitchshift.channels = this.state.pitchchannels;
         // debugging purposes
         console.log(packet);
 
@@ -277,7 +277,11 @@ class UploadFile extends Component {
       }
 
       applyFlange(event) {
-        this.setState({ flangeapply: event.target.value });
+        if(event.target.checked) {
+          this.setState({ flangeapply: "true" });
+        } else {
+          this.setState({ flangeapply: "false" });
+        }
       }
 
       updateFlangeMix(event) {
@@ -293,7 +297,11 @@ class UploadFile extends Component {
       }
 
       applyPitch(event) {
-        this.setState({ pitchapply: event.target.value });
+        if(event.target.checked) {
+          this.setState({ pitchapply: "true" });
+        } else {
+          this.setState({ pitchapply: "false" });
+        }
       }
 
       updatePitchPitch(event) {
