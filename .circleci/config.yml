@@ -75,8 +75,8 @@ jobs:
 
 
       - store_artifacts:
-          path: /AudioEngine/html/index.html
+          path: AudioEngine/html
 
       - store_artifacts:
-          path: /pyServer/coverage_report/index.html
+          path: pyServer/coverage_report
 
