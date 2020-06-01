@@ -79,8 +79,8 @@ class UploadFile extends Component {
           flangerate: "0.0",
           pitchapply: "false",
           pitchpitch: "1.0",
-          pitchfft: "1024",
-          pitchchannels: "0.0"
+          pitchfftsize: "1024",
+          pitchmaxchannels: "0.0"
         };
 
         this.updatePlayState = this.updatePlayState.bind(this);
@@ -101,8 +101,8 @@ class UploadFile extends Component {
         this.updateFlangeRate = this.updateFlangeRate.bind(this);
         this.applyPitch = this.applyPitch.bind(this);
         this.updatePitchPitch = this.updatePitchPitch.bind(this);
-        this.updatePitchFFT = this.updatePitchFFT.bind(this);
-        this.updatePitchChannels = this.updatePitchChannels.bind(this);
+        this.updatePitchFFTsize = this.updatePitchFFTsize.bind(this);
+        this.updatePitchMaxchannels = this.updatePitchMaxchannels.bind(this);
       }
 
       uploadAudioFile = async (evt) => {
@@ -175,8 +175,8 @@ class UploadFile extends Component {
         packet.parameters.flange.rate = this.state.flangerate;
         packet.parameters.pitchshift.apply = this.state.pitchapply;
         packet.parameters.pitchshift.pitch = this.state.pitchpitch;
-        packet.parameters.pitchshift.fft = this.state.pitchfft;
-        packet.parameters.pitchshift.channels = this.state.pitchchannels;
+        packet.parameters.pitchshift.fftsize = this.state.pitchfftsize;
+        packet.parameters.pitchshift.maxchannels = this.state.pitchmaxchannels;
         // debugging purposes
         console.log(packet);
 
@@ -308,12 +308,12 @@ class UploadFile extends Component {
         this.setState({ pitchpitch: event.target.value });
       }
 
-      updatePitchFFT(event) {
-        this.setState({ pitchfft: event.target.value });
+      updatePitchFFTsize(event) {
+        this.setState({ pitchfftsize: event.target.value });
       }
 
-      updatePitchChannels(event) {
-        this.setState({ pitchchannels: event.target.value });
+      updatePitchMaxchannels(event) {
+        this.setState({ pitchmaxchannels: event.target.value });
       }
 
       render() {
@@ -423,11 +423,11 @@ class UploadFile extends Component {
                 </label>
                 <label>
                   FFT Size:
-                  <input type="number" step="256" onChange={this.updatePitchFFT} />
+                  <input type="number" step="256" onChange={this.updatePitchFFTsize} />
                 </label>
                 <label>
                   Channels:
-                  <input type="number" step="1" onChange={this.updatePitchChannels} />
+                  <input type="number" step="1" onChange={this.updatePitchMaxchannels} />
                 </label>
               </div>
               <p></p>
