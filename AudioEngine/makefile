@@ -55,3 +55,6 @@ test:
 
 build:
 	g++ -std=c++11 -pthread ${FLAGS} -o ${EXE} ${BUILD_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
+
+coverage:
+	g++ --coverage -std=c++11 -pthread ${FLAGS} -o ${NAME} ${SOURCE_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
