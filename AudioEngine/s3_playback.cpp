@@ -154,7 +154,7 @@ int main()
     //printf("Listening to python server\n");
     while(1)   
     {
-	result = 0;
+        result = 0;
 	parser.update();
         //server_client_await_request(sockfd, dataPtr, &servaddr);
 	printf("Listening to the child process\n");
@@ -184,13 +184,10 @@ int main()
 		cout << "Data parsed\n";
 		audioSettings = parser.getCurrentRequest();
 
-		cout << "filename: " << audioSettings.filename << '\n';
 		cout << "Play: " << audioSettings.play << '\n';
 		cout << "Volume: " << audioSettings.volume << '\n';
-
 		parser.applyRequest();
 		cout << "request applied\n";
-		parser.update();
 	}
     }
 }

@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import { Storage, API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../graphql/queries';
 import * as mutations from '../graphql/mutations';
-import AWS from 'aws-sdk';
-
-AWS.config.update({region: 'us-west-2'});
 
 export default class ListFiles extends Component {
     constructor(props) {
@@ -23,9 +20,11 @@ export default class ListFiles extends Component {
         const audioFiles = await API.graphql(graphqlOperation(queries.listAudios));
         const items = audioFiles.data.listAudios.items;
 
-        // update file list
+        // update file list ... this kind of works, the listAudios query doesnt seem to be working correctly
         for (const i in items) {
-            this.state.fileList[i] = items[i].name;
+            if(!this.state.fileList.includes(items[i].name)) {
+                this.state.fileList.push(items[i].name);
+            }
         }
 
         // re render (there is probably way better ways to do this)
@@ -45,7 +44,7 @@ export default class ListFiles extends Component {
 
             // find id of file that needs to be deleted
             for (const i in items) {
-                if(items[i].name == this.state.fileToDelete) {
+                if(items[i].name === this.state.fileToDelete) {
                     fileID = items[i].id;
                 }
             }
@@ -71,27 +70,11 @@ export default class ListFiles extends Component {
         }   
     }
 
-    /* testing SQS queues for direct messaging
-    listSQSQueues = () => {
-        const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-
-        var params = {};
-
-        sqs.listQueues(params, function(err, data) {
-            if (err) {
-              console.log("Error", err);
-            } else {
-              console.log("Success", data.QueueUrls);
-            }
-        });
-    }
-    */
-
     render() {
         return(
             <div>
                 <h2>File List</h2>
-                <form onSubmit={this.deleteFile}>
+                <form onSubmit={ this.deleteFile }>
                     <label>File to delete
                         <input type="text" onChange={ (event) => {
                             this.setState({

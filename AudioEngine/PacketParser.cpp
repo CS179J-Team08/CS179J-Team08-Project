@@ -2,21 +2,25 @@
 #include "PacketParser.h"
 #include <stdio.h>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
 void packetParser::parseData(string packet)
 {
-	request.usernames.clear();
+        auto inst = FMOD_Handler::instance();
+        request.usernames.clear();
 
 	char *packetChar = new char[packet.size() + 1];
 	strncpy(packetChar, packet.c_str(), packet.size() + 1);
 	const char *delim = "{}[]\':,\"";
 	char *token = std::strtok(packetChar, delim/*, &strtokState*/);
 
-	string dir = "audio/";
-	char *prefix = new char[dir.size() + packet.size() + 1];
-	strncpy(prefix, "audio/", dir.size() + packet.size() + 1);
+	string https = "https:";
+	char *prefix = new char[https.size() + packet.size() + 1];
+	//string dir = "audio/";
+	//char *prefix = new char[dir.size() + packet.size() + 1];
+	//strncpy(prefix, "audio/", dir.size() + packet.size() + 1);
 
 	vector<char *> packetData;
 	while (token)
@@ -26,9 +30,9 @@ void packetParser::parseData(string packet)
 	}
 
 	for(int i = 0; i < packetData.size(); i++)
-	  {
+	{
 	    printf("%s\n", packetData[i]);
-	  } 
+	} 
 	
 	for (auto it = packetData.begin(); it != packetData.end(); it++)
 	{
@@ -39,12 +43,17 @@ void packetParser::parseData(string packet)
 				request.usernames.push_back(*(it + 1));
 			}
 		}
-		else if (strcmp(*it, "filename") == 0)
+		else if (strcmp(*it, "name") == 0)
 		{
 			if (it + 1 != packetData.end() && strcmp(*(it + 1), "userID") != 0)
 			{
-				strncat(prefix, *(it + 2), dir.size() + packet.size() + 1);
-				request.filename = prefix;
+			        //strncat(prefix, *(it + 2), dir.size() + packet.size() + 1);
+			        //request.filename = prefix;
+    			        char *url = new char[https.size() + packet.size() + 1];
+				strncpy(url, "https:", https.size() + packet.size() + 1);
+				strncat(url, *(it + 3), https.size() + packet.size() + 1);
+				
+     				inst->playlist.push(url);
 			}
 		}
 		else if (strcmp(*it, "play") == 0)
@@ -153,7 +162,7 @@ void packetParser::parseData(string packet)
 		printf(*it);
 		printf("\n");
 	}
-	printf("%s", request.filename);
+	//printf("%s", request.filename);
 	printf("\n");
 	if (request.play)
 	{
@@ -201,58 +210,49 @@ void packetParser::parseData(string packet)
 }
 
 void packetParser::applyRequest()
-{
-        update(); //TODO: Should be moved out of this function, once process forking is implemented
-
+{        
         auto inst = FMOD_Handler::instance();
 	auto d = dspEngine();
 	int channelID;
 	addSystem("mainSystem");
-
-	auto atcIt = inst->_mAudioToChannel.find(request.filename);
+      
 	if (request.stop == true)
 	{
-		auto channel = inst->_mAudioToChannel.find(request.filename);
-		if (channel != inst->_mAudioToChannel.end())
+	  
+	        if(inst->currentChannel)
 		{
-			unloadChannel("mainSystem",  channel->second);
-			unloadSound("mainSystem", request.filename);
+		        inst->currentChannel->stop();
 		}
 	}
 	else
 	{
 		if (request.play)
 		{
-			if (atcIt == inst->_mAudioToChannel.end())
+
+		        if(inst->currentChannel)
 			{
-			        unloadAllChannelsInSystem("mainSystem");
-				channelID = aePlaySound("mainSystem", request.filename);
-				inst->_mAudioToChannel[request.filename] = channelID;
-				inst->_mChannelToAudio[channelID] = request.filename;
-				atcIt = inst->_mAudioToChannel.find(request.filename);
+  			        setPauseOnCurrentChannel("mainSystem", false);
 			}
 			else
-			{
-				setPauseOnChannel("mainSystem", atcIt->second, false);
+			{		  
+			        loadSound("mainSystem", inst->playlist.front(), false, false, true);
+				aePlaySound("mainSystem", inst->playlist.front());
+				inst->playlist.pop();
 			}
 		}
 		else //request.play == false
-		{
-			if (atcIt == inst->_mAudioToChannel.end())
+		{		  
+		        if(inst->currentChannel)
 			{
-				loadSound("mainSystem", request.filename);
-			}
-			else
-			{
-				setPauseOnChannel("mainSystem", atcIt->second, true);
+			        setPauseOnCurrentChannel("mainSystem", true);
 			}
 		}
 
 		if (request.volume != 0.0)
 		{
-			if (atcIt != inst->_mAudioToChannel.end())
+		        if(inst->currentChannel)
 			{
-				setChannelVolume("mainSystem", atcIt->second, request.volume);
+			        setCurrentChannelVolume("mainSystem", request.volume);
 			}
 		}
 

@@ -54,7 +54,6 @@ TEST_CASE("FMOD System addition and removal", "[FMOD::System]")
 TEST_CASE("Loading and unloading of sounds", "[FMOD::Sound]")
 {
 	auto inst = FMOD_Handler::instance();
-	inst->playlist.push("audio/jaguar.wav");
 	auto a = new audioEngine();
 	a->init();
 	a->addSystem("Test Load");
@@ -76,36 +75,46 @@ TEST_CASE("Loading and unloading of sounds", "[FMOD::Sound]")
 
 TEST_CASE("Create Channel via aePlaySound and unload channels", "[FMOD::System::playSound]")
 {
-        auto inst = FMOD_Handler::instance();
+	auto inst = FMOD_Handler::instance();
 	auto a = new audioEngine();
-	string n = "test aePlaySound";
-	string m = "audio/jaguar.wav";
-	a->addSystem(n);
-	inst->playlist.push(m);
-	a->loadSound(n, m, false, false, false);
-	int channelID = a->aePlaySound(n, m);
-	REQUIRE(inst->_dChannels[n][channelID] == inst->currentChannel);  
+	a->addSystem("Test aePlaySound");
+	int channel1 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+	int channel2 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+	int channel3 = a->aePlaySound("Test aePlaySound", "audio/jaguar.wav");
+
+	auto mChannelIt1 = inst->_dChannels["Test aePlaySound"].find(channel1);
+	auto mChannelIt2 = inst->_dChannels["Test aePlaySound"].find(channel2);
+	auto mChannelIt3 = inst->_dChannels["Test aePlaySound"].find(channel3);
+	REQUIRE(mChannelIt1 != inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt2 != inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt3 != inst->_dChannels["Test aePlaySound"].end());
+	
+	a->unloadChannel("Test aePlaySound", channel1);
+	mChannelIt1 = inst->_dChannels["Test aePlaySound"].find(channel1);
+	REQUIRE(mChannelIt1 == inst->_dChannels["Test aePlaySound"].end());
+
+	a->unloadAllChannelsInSystem("Test aePlaySound");
+	mChannelIt2 = inst->_dChannels["Test aePlaySound"].find(channel2);
+	mChannelIt3 = inst->_dChannels["Test aePlaySound"].find(channel3);
+	REQUIRE(mChannelIt2 == inst->_dChannels["Test aePlaySound"].end());
+	REQUIRE(mChannelIt3 == inst->_dChannels["Test aePlaySound"].end());
 }
 
 TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDSPEffect]")
 {
 	auto inst = FMOD_Handler::instance();
 	auto a = new dspEngine();
-
-	inst->addSystem("Test Add");
 	// Add One, Remove One
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	auto mDSPIt = inst->_mDSP.find("Test Add");
-	REQUIRE(mDSPIt != inst->_mDSP.end());
+	REQUIRE(mDSPIt == inst->_mDSP.end());
 	a->removeDSPEffect("Test Add", FMOD_DSP_TYPE_DISTORTION);
 	REQUIRE(inst->_mDSP.empty());
 	
 	// Add One, "Remove All"
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_PARAMEQ);
 	mDSPIt = inst->_mDSP.find("Test Add");
-
-	REQUIRE(mDSPIt != inst->_mDSP.end());
-
+	REQUIRE(mDSPIt == inst->_mDSP.end());
 	a->removeAllDSPEffectsInSystem("Test Add");
 	REQUIRE(inst->_mDSP.empty());
 	
@@ -115,69 +124,11 @@ TEST_CASE("DSP Test: Add/Remove DSP effects", "[dspEngine::addDSPEffect/removeDS
 	a->addDSPEffect("Test Add", FMOD_DSP_TYPE_CHORUS);
 	a->removeAllDSPEffectsInSystem("Test Add");
 	REQUIRE(inst->_mDSP.empty());
-
-
-}
-
-TEST_CASE("DSP Test: Echo effects", "[dspEffects::setEchoParameters]")
-{
-	auto inst = FMOD_Handler::instance();
-	auto a = new dspEngine();
-	inst->addSystem("Test Echo");
-	// Add Echo
-	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
-	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 10, 20, 3.0, -4.0);
-	vector<float> params = a->getEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO);
-	REQUIRE(params.at(0) == 10);
-	REQUIRE(params.at(1) == 20);
-	REQUIRE(params.at(2) == 3.0);
-	REQUIRE(params.at(3) == -4.0);
-	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
-}
-
-TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
-{
-	auto inst = FMOD_Handler::instance();
-	auto a = new dspEngine();
-	inst->addSystem("Test EQ");
-	// Add Eq
-	a->addDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
-	a->setEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ, 5, -20, 4.6);
-	vector<float> params = a->getEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ); 
-	REQUIRE(params.at(0) == 5);
-	REQUIRE(params.at(1) == -20);
-	REQUIRE(params.at(2) == 4.6f);
-	a->removeDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
-
+	
 }
 
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
-  
-        auto inst = FMOD_Handler::instance();
-	auto a = new audioEngine();
-	a->init();
-	string n = "Test Volume";
-	string m = "audio/jaguar.wav";
-	a->addSystem(n);
-	inst->playlist.push(m);
-	a->loadSound(n, m, false, false, false);
-	int channel = a->aePlaySound(n, m);
-	//a->setPauseOnCurrentChannel(n, true);
-	a->setCurrentChannelVolume(n, 20.0);
-	float volume;
-	REQUIRE(inst->currentChannel->getVolume(&volume) == FMOD_OK);
-	REQUIRE(volume == 10.0); //converted from db to linear
-
-	a->setCurrentChannelVolume(n, -20.0);
-	REQUIRE(inst->currentChannel->getVolume(&volume) == FMOD_OK);
-	REQUIRE(volume == 1.0); //Lower bound
-
-	a->setCurrentChannelVolume(n, 1000.0);
-	REQUIRE(inst->currentChannel->getVolume(&volume) == FMOD_OK);
-	REQUIRE(volume == 56234.13251f); //Upper bound
-  
-  /*
 	auto inst = FMOD_Handler::instance();
 	auto a = new audioEngine();
 	a->addSystem("Test Volume");
@@ -198,6 +149,5 @@ TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 	a->setChannelVolume("Test Volume", channel, 1000);
 	REQUIRE(mChannelIt->second->getVolume(&volume) == FMOD_OK);
 	REQUIRE(volume == 56234.13251f);
-  */
 }
 

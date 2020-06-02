@@ -22,13 +22,6 @@ def test_initalization():
 
 def test_server_file_already_exists():
     s3 = boto3.resource('s3')
-    bucketName = "testing-pi"
-    fileName = "drumloop.wav"
-    storageResult = fileName
-    assert aws_download(bucketName, fileName, storageResult) == "file already exists"
-
-def test_server_file_checker():
-    s3 = boto3.resource('s3')
     bucketName = "cs-audiofile-bucketdefault-default"
     fileName = "drumloop.wav"
     storageResult = fileName
