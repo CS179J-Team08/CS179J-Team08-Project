@@ -178,6 +178,22 @@ TEST_CASE("DSP Test: Flange effects", "[dspEffects::setFlangeParameters]")
 	a->removeDSPEffect("Test Flange", FMOD_DSP_TYPE_FLANGE);
 }
 
+TEST_CASE("DSP Test: PitchShift effects", "[dspEffects::setPitchShiftParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test Pitch");
+	// Add PitchShift
+	a->addDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
+	a->setPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT, 1, 1024, 0);
+	vector<float> params = a->getPitchShiftParameters("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT); 
+	REQUIRE(params.at(0) == 1);
+	REQUIRE(params.at(1) == 1024);
+	REQUIRE(params.at(2) == 4.0f);
+	REQUIRE(params.at(3) == 0);
+	a->removeDSPEffect("Test Pitch", FMOD_DSP_TYPE_PITCHSHIFT);
+}
+
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
 	auto inst = FMOD_Handler::instance();
