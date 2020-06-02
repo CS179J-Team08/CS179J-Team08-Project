@@ -26,7 +26,7 @@ struct eqEffect
 struct dataPacket
 {
 	vector<char*> usernames;
-	char *filename;
+        //char *filename;
 	bool play;
 	bool stop;
 	float volume;
@@ -46,7 +46,7 @@ private:
 };
 
 /*
-
+ 
 New packet syntax:
 let packet = {
   group: [
@@ -91,8 +91,8 @@ Old packet syntax:
   parameters: {
 	volume: 0.0
   }
-}
+} 
 
-*/
+*/   
 
 #endif 
