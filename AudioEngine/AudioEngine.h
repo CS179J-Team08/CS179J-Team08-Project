@@ -104,7 +104,7 @@ public:
 	vector<float> getEchoParameters(string systemID, FMOD_DSP_TYPE dspType);
 	vector<float> getEqParameters(string systemID, FMOD_DSP_TYPE dspType);
 	vector<float> getFlangeParameters(string systemID, FMOD_DSP_TYPE dspType);
-	vector<float> getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType);
+	//vector<float> getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType);
 
 private:
 	inline bool checkIndex(int index, int limit);

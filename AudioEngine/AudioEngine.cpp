@@ -569,6 +569,7 @@ void dspEngine::setFlangeParameters(string systemID, FMOD_DSP_TYPE dspType, floa
 	}
 }
 
+/*
 void dspEngine::setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, float pitch, float fftsize, float maxchannels)
 {
 	FMOD::DSP *pitchshift;
@@ -579,6 +580,7 @@ void dspEngine::setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, 
 		pitchshift->setParameterFloat(3, maxchannels);
 	}
 }
+*/
 
 vector<float> dspEngine::getEchoParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
@@ -633,6 +635,7 @@ vector<float> dspEngine::getFlangeParameters(string systemID, FMOD_DSP_TYPE dspT
 	return values;
 }
 
+/*
 vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
@@ -651,6 +654,7 @@ vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE 
 	}
 	return values;
 }
+*/
 
 bool dspEngine::checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput)
 {
