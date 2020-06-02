@@ -31,14 +31,6 @@ struct flangeEffect
 	float rate;
 };
 
-struct pitchEffect
-{
-	bool apply;
-	float pitch;
-	float fftsize;
-	float maxchannels;
-};
-
 struct dataPacket
 {
 	vector<char*> usernames;
@@ -49,7 +41,6 @@ struct dataPacket
 	echoEffect echo;
 	eqEffect eq;
 	flangeEffect flange;
-	pitchEffect pitchshift;
 };
 
 class packetParser : public audioEngine

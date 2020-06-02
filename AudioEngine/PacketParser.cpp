@@ -184,35 +184,6 @@ void packetParser::parseData(string packet)
 				}
 			}
 		}
-		else if (strcmp(*it, "pitchshift") == 0)
-		{
-			if (it + 1 != packetData.end())
-			{
-				if (strcmp(*(it + 2), "apply") == 0)
-				{
-					if (strcmp(*(it + 4), "true") == 0)
-					{
-						request.pitchshift.apply = true;
-					}
-					else if (strcmp(*(it + 4), "false") == 0)
-					{
-						request.pitchshift.apply = false;
-					}
-				}
-				if (strcmp(*(it + 6), "pitch") == 0)
-				{
-					request.pitchshift.pitch = stof(*(it + 8));
-				}
-				if (strcmp(*(it + 10), "fftsize") == 0)
-				{
-					request.pitchshift.fftsize = stof(*(it + 12));
-				}
-				if (strcmp(*(it + 14), "maxchannels") == 0)
-				{
-					request.pitchshift.maxchannels = stof(*(it + 16));
-				}
-			}
-		}
 	}
 	
 	for (auto it = request.usernames.begin(); it != request.usernames.end(); it++)
@@ -275,17 +246,6 @@ void packetParser::parseData(string packet)
 	printf("%f\n", request.flange.depth);
 	printf("%f\n", request.flange.mix);
 	printf("%f\n", request.flange.rate);
-	printf("pitchshift: \n");
-	if (request.pitchshift.apply)
-	{
-		printf("apply == true\n");
-	}
-	{
-		printf("apply == false\n");
-	}
-	printf("%f\n", request.pitchshift.pitch);
-	printf("%f\n", request.pitchshift.fftsize);
-	printf("%f\n", request.pitchshift.maxchannels);
 }
 
 void packetParser::applyRequest()
@@ -363,16 +323,6 @@ void packetParser::applyRequest()
 		else
 		{
 			d.removeDSPEffect("mainSystem", FMOD_DSP_TYPE_FLANGE);
-		}
-
-		if (request.pitchshift.apply == true)
-		{
-			d.addDSPEffect("mainSystem", FMOD_DSP_TYPE_PITCHSHIFT);
-			d.setPitchShiftParameters("mainSystem", FMOD_DSP_TYPE_PITCHSHIFT, request.pitchshift.pitch, request.pitchshift.fftsize, request.pitchshift.maxchannels);
-		}
-		else
-		{
-			d.removeDSPEffect("mainSystem", FMOD_DSP_TYPE_PITCHSHIFT);
 		}
 	}
 }
