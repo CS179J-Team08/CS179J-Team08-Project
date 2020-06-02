@@ -235,7 +235,7 @@ void packetParser::parseData(string packet)
 	printf("%f\n", request.eq.lowgain);
 	printf("%f\n", request.eq.midgain);
 	printf("%f\n", request.eq.highgain);
-	printf("flange: \n"));
+	printf("flange: \n");
 	if (request.flange.apply)
 	{
 		printf("apply == true\n");
