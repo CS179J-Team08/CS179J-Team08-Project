@@ -42,16 +42,40 @@ pip3 install boto3
 ```
 pip3 install awscli --upgrade --user
 ```
+Once the CLI is installed you need to ensure that you export the aws can be executed. This can be done in either of these two ways.
+
+***Reboot the device***
+
+Once the device is restarted you should be able to run the aws command.
+
+***Export the PATH***
+
+Using a text editor of your choice ensure that you can access the .bashrc file located in ~. Then add the following line to the profile script.
+```
+export PATH=~/.local/bin:$PATH
+```
+
+Once executed then load the updated profile into the session
+```
+source ~/.bash_profile
+```
+
 
 * Pytest - testing tools for Python
 ```
 pip3 install pytest
 ```
 ### Installing
-These steps will guide to setting up both the companion app and the cloudsound device.
+These steps will guide to setting up both the companion app and the cloudsound device.  **Note: The current steps require you to have access to a IAM role from the AWS management console. Without access to the IAM role you will not be able to run the CloudSound device** 
 
 #### Companion-app
-When you clone the repo, cd into the companion-app directory and run the following command.
+Run the following command on your desktop/laptop before running the web application. Follow the prompts and when asked for a region ensure you use **us-west-2**.
+
+```
+aws configure
+```
+
+cd into the companion-app directory and run the following command on your desktop/laptop.
 ```
 sudo npm install
 ```
@@ -69,7 +93,12 @@ https://localhost:3000
 ```
 
 #### CloudSound Device
-All the needs to be done on the device is run the two executables that allow cloudsound to recieve packets and initiate audio playback
+Before you run the necessary executables, you need to ensure that the device has your IAM role configure on the device. To do so run the following the prompts. When asked for a region ensure you use **us-west-2**.
+
+```
+aws configure
+```
+Once this is done you need to run the following executables in the order they are listed.
 
 * pyServer - Packet reception located in the pyServer/ directory of the project.
 ```
@@ -85,7 +114,7 @@ Then once the cloudsound executable is built
 ./cloudsound
 ```
 
-It should be noted that we need to run the server.py first before the cloundsound executable is ran.
+It should be noted that we need to run the server.py first before the cloundsound executable is ran to ensure the socket connection between the server and cloudsound.
 
 ### Running tests
 The tests for each component can be ran using the following comands.
@@ -99,9 +128,4 @@ make test CPU=armhf CONFIG=Release
 * pyServer - Ensure you are in the pyServer/ directory
 ```
 pytest
-```
-
-* Companion-app - Ensure you are in the Companion-app/ directory
-```
-npm test
 ```
