@@ -134,35 +134,40 @@ export default class GroupPlay extends Component {
         console.log(groupPacket);
 
         // assign json file prefixes as per each user's UUID
+        let prefix = 'default';
         for (const i in groupUsers) {
-            let prefix = groupUsers[i];
-
-            Storage.put(prefix + '.json', groupPacket)
-            .then(result => console.log(result))
-            .catch(err => console.log(err));
+            prefix = groupUsers[i];
         }
+        Storage.put(prefix + '.json', groupPacket)
+        .then(result => console.log(result))
+        .catch(err => console.log(err));
     }
 
     togglePlayPause = () => {
         let groupUsers = this.state.userIDs;
 
         let play = this.state.play;
-        if(play === "false") {
-            play = "true";
-        } else {
+        if(play === "true") {
             play = "false";
+        } else {
+            play = "true";
         }
 
         this.setState({ play: play });
+        this.setState({ stop: "false" });
         groupPacket.play = this.state.play;
+        groupPacket.stop = this.state.stop;
 
+        let prefix = 'default';
         for (const i in groupUsers) {
-            let prefix = groupUsers[i];
-
-            Storage.put(prefix + '.json', groupPacket)
-            .then(result => console.log(result))
-            .catch(err => console.log(err));
+            prefix = groupUsers[i];
         }
+        
+        console.log(this.state);
+
+        Storage.put(prefix + '.json', groupPacket)
+        .then(result => console.log(result))
+        .catch(err => console.log(err));
     }
 
     toggleStop = () => {
@@ -176,14 +181,16 @@ export default class GroupPlay extends Component {
         this.setState({ stop: stop })
         groupPacket.stop = this.state.stop;
 
+        let prefix = 'default';
         let groupUsers = this.state.userIDs;
         for (const i in groupUsers) {
-            let prefix = groupUsers[i];
+            prefix = groupUsers[i];
 
-            Storage.put(prefix + '.json', groupPacket)
-            .then(result => console.log(result))
-            .catch(err => console.log(err));
         }
+    
+        Storage.put(prefix + '.json', groupPacket)
+        .then(result => console.log(result))
+        .catch(err => console.log(err));
     }
 
     updateFileName = idx => event => {
