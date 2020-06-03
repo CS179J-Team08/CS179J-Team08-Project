@@ -151,6 +151,37 @@ TEST_CASE("DSP Test: Eq effects", "[dspEffects::setEqParameters]")
 
 }
 
+TEST_CASE("DSP Test: Parameter Edge Case (Echo)", "[dspEffects::setEchoParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test Echo");
+	// Add Echo
+	a->addDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
+	a->setEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO, 0, 160, -90, 42);
+	vector<float> params = a->getEchoParameters("Test Echo", FMOD_DSP_TYPE_ECHO);
+	REQUIRE(params.at(0) == 1);
+	REQUIRE(params.at(1) == 100);
+	REQUIRE(params.at(2) == -80);
+	REQUIRE(params.at(3) == 10);
+	a->removeDSPEffect("Test Echo", FMOD_DSP_TYPE_ECHO);
+}
+
+TEST_CASE("DSP Test: Parameter Edge Case (EQ)", "[dspEffects::setEqParameters]")
+{
+	auto inst = FMOD_Handler::instance();
+	auto a = new dspEngine();
+	inst->addSystem("Test EQ");
+	// Add Eq
+	a->addDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
+	a->setEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ, 10, -81, 12.5);
+	vector<float> params = a->getEqParameters("Test EQ", FMOD_DSP_TYPE_THREE_EQ); 
+	REQUIRE(params.at(0) == 10);
+	REQUIRE(params.at(1) == -80);
+	REQUIRE(params.at(2) == 10.0f);
+	a->removeDSPEffect("Test EQ", FMOD_DSP_TYPE_THREE_EQ);
+}
+
 TEST_CASE("Volume test", "[ChannelControl::getVolume]")
 {
   
