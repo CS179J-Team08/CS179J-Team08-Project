@@ -23,7 +23,7 @@ def listen_for_registration(queue, device_data): # pragma: no cover
                 print(messageBody)
                 queue_id = messageBody["queue"]
                 message.delete()
-                if device_data["device"] is messageBody["queue"]:
+                if device_data[0]["device"] == messageBody["device"]:
                     waiting_for_SQS = 0
 
         return queue_id
