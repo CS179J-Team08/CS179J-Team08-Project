@@ -45,6 +45,7 @@ class App extends Component {
           <Route exact path="/register-device" render={ props =>
               <div>
                 <Register />
+              </div>
           } />
           <Route exact path="/messaging" render={ props => 
               <div>
