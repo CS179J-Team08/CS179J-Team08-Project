@@ -1,9 +1,11 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "PacketParser.h"
+#include "AudioEngine.h"
 
-TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::parseData](default values)") 
+TEST_CASE("Test Packet Parse #1", "[PacketParser::parseData](default values)") 
 {
+        auto inst = FMOD_Handler::instance();
 	packetParser parser;
 	dataPacket audioSettings;
 	string data = "{\"group\": [{\"userID\": \"TutorialTestQueue\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"}],\"filename\": \"drumloop.wav\",\"play\": \"true\", \"stop\":\"false\", \"parameters\":{\"volume\":\"0.0\", \"echo\":{\"apply\": \"false\", \"delay\":\"0.0\",\"feedback\":\"0.0\",\"dry\":\"0.0\",\"wet\":\"0.0\"}, \"equalizer\":{\"apply\":\"false\", \"lowgain\":\"0.0\", \"midgain\":\"0.0\", \"highgain\":\"0.0\"}}}";
@@ -11,7 +13,7 @@ TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::p
 	SECTION("Parse Data") {
 		parser.parseData(data);
 		audioSettings = parser.getCurrentRequest();
-		REQUIRE(strcmp(audioSettings.filename, expected) == 0);
+		REQUIRE(strcmp(inst->playlist.front().c_str(), expected) == 0);
 		REQUIRE(audioSettings.play == true);
 		REQUIRE(audioSettings.volume == 0.0);
 		REQUIRE(audioSettings.echo.apply == false);
@@ -26,8 +28,9 @@ TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::p
 	}
 }
 
-TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::parseData](Reasonable Values)") 
+TEST_CASE("Test Packet Parse #2", "[PacketParser::parseData](Reasonable Values)") 
 {
+        auto inst = FMOD_Handler::instance();
 	packetParser parser;
 	dataPacket audioSettings;
 	string data = "{\"group\": [{\"userID\": \"TutorialTestQueue\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"}],\"filename\": \"drumloop.wav\",\"play\": \"true\", \"stop\":\"true\", \"parameters\":{\"volume\":\"12.5\", \"echo\":{\"apply\": \"true\", \"delay\":\"898\",\"feedback\":\"5000\",\"dry\":\"25\",\"wet\":\"-60\"}, \"equalizer\":{\"apply\":\"true\", \"lowgain\":\"561.45\", \"midgain\":\"9999\", \"highgain\":\"-9999\"}}}";
@@ -35,7 +38,7 @@ TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::p
 	SECTION("Parse Data") {
 		parser.parseData(data);
 		audioSettings = parser.getCurrentRequest();
-		REQUIRE(strcmp(audioSettings.filename, expected) == 0);
+		REQUIRE(strcmp(inst->playlist.front().c_str(), expected) == 0);
 		REQUIRE(audioSettings.play == true);
 		REQUIRE(audioSettings.stop == false);
 		REQUIRE(audioSettings.volume == 3);
@@ -51,8 +54,9 @@ TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::p
 	}
 }
 
-TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::parseData](Unreasonable Values)") 
+TEST_CASE("Packet Parser Test #3", "[PacketParser::parseData](Unreasonable Values)") 
 {
+        auto inst = FMOD_Handler::instance();
 	packetParser parser;
 	dataPacket audioSettings;
 	string data = "{\"group\": [{\"userID\": \"TutorialTestQueue\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"},{\"userID\": \"\"}],\"filename\": \"drumloop.wav\",\"play\": \"true\", \"stop\":\"true\", \"parameters\":{\"volume\":\"12.5\", \"echo\":{\"apply\": \"true\", \"delay\":\"898\",\"feedback\":\"5000\",\"dry\":\"25\",\"wet\":\"-60\"}, \"equalizer\":{\"apply\":\"true\", \"lowgain\":\"561.45\", \"midgain\":\"9999\", \"highgain\":\"-9999\"}}}";
@@ -60,7 +64,7 @@ TEST_CASE("Parse of Incoming Data Packets from Python Server", "[PacketParser::p
 	SECTION("Parse Data") {
 		parser.parseData(data);
 		audioSettings = parser.getCurrentRequest();
-		REQUIRE(strcmp(audioSettings.filename, expected) == 0);
+		REQUIRE(strcmp(inst->playlist.front().c_str(), expected) == 0);
 		REQUIRE(audioSettings.play == true);
 		REQUIRE(audioSettings.stop == true);
 		REQUIRE(audioSettings.volume == 12.5);

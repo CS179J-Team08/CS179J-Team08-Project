@@ -59,7 +59,7 @@ jobs:
           command: 'cd AudioEngine/ && make coverage CPU=X86 CONFIG=Release && make build CPU=X86 CONFIG=Release'
       - run:
           name: Point Unit Testing
-          command: 'cd AudioEngine/ && ./audio_test'
+          command: 'cd AudioEngine/ && ./audio_test && ./parse_test'
       - run:
           name: Generate C++ coverage html report
           command: 'cd AudioEngine/ && gcov -r audioEngine.cpp && lcov --no-external --capture --directory . --output-file AudioEngine.info && genhtml AudioEngine.info --output-directory html'
