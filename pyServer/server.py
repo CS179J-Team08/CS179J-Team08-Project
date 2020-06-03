@@ -102,46 +102,6 @@ def socket_server_respond_request(conn, data):
     conn.sendall(reply)
 
 
-#Author: Angel Renteria
-#Output: A string representing the downloaded file's name
-#
-#Input: A string representing an S3 bucket name, a string representing a file name, a string representing the resulting downloaded file name
-#
-#Description: This method utilizes the boto3 library to access our S3 buckets and begin to download an file given the input arguments.
-
-def aws_download(bucketName, fileName, storageResult):
-    #Initialize a boto3 resource
-    s3 = boto3.resource('s3')
-    #Begin to download the specified fileName
-    storage_path = "../AudioEngine/audio/" + storageResult
-    if path.exists(storage_path) == False:
-        s3.meta.client.download_file(bucketName, fileName, storage_path)
-        print(storageResult,"was downloaded successfully!")
-        return storageResult
-    else:
-        print("The requested file already exists in the system")
-        return "file already exists"
-
-
-
-
-#Author: Angel Renteria
-#Output: String data that either represents a file that was downloaded or "file not found if the file does not exist in the S3 bucket
-#
-#Input: A string representing an S3 bucket name, a bucket object of the bucket to look into, and a tuple that contains the file name to search for as the first element
-#
-#Description: This method iterates over a buckets contents and begins to search if a given file name exists. If it does not exist then we return "file not found". Otherwise we begin our file download by calling aws_download()
-
-def confirm_file_is_vaild(bucket_path, target_bucket, target_data):
-    #Iterate over the object looking for the particular fileName in target_data. (fileName = target_data[0])
-    for obj in target_bucket.objects.all():
-        if target_data[0] in obj.key:
-            #If the string of the fileName exists in the obj.key then we have found the file we want
-            #We call aws_download and pass the bucket we want to download from, the exact path to the file for download, and the user specified file name for the given download
-            fileName = aws_download(bucket_path, obj.key, target_data[0])
-            return fileName
-    print ("Requested file was not found. Awaiting for next queue message")
-    return "file not found"
 
 def find_user_queue():
     with open('device.json', 'r') as device:
@@ -154,7 +114,7 @@ def find_user_queue():
         return (data, True)
 
 
-def thread_download(bucket, bucket_obj, sqs_response):
+def thread_send(bucket, bucket_obj, sqs_response, conn):
     if sqs_response[4] == True:
         sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
         sqs_response[1]["filenames"] = sqs_response[0]
@@ -190,7 +150,7 @@ def message_url_check(sqs_response, bucket,target_bucket):
 
 
 #Main function
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     #Initialize our socket and connection to None, then begin their initialization
     s = None
     conn = None
@@ -205,7 +165,7 @@ if __name__ == '__main__':
         print("This device is not connected to the web app")
         message_queue = sqs_register_device()
         while queue_id == None:
-            queue_id = listen_for_registration(message_queue)
+            queue_id = listen_for_registration(message_queue, registration)
             print(queue_id)
         registration[0]["queue"] = queue_id
         new_json = { "device" : "", "queue" : ""}
@@ -235,16 +195,8 @@ if __name__ == '__main__':
             elif thread.is_alive():
                 thread.join()
 
-            thread = threading.Thread(target=thread_download, args=(bucket,bucket_obj, sqs_response))
+            thread = threading.Thread(target=thread_send, args=(bucket,bucket_obj, sqs_response, conn))
             thread.start()
-            #if sqs_response[4] == True:
-            #    sqs_response = message_url_check(sqs_response, bucket, bucket_obj)
-            #    sqs_response[1]["filenames"] = sqs_response[0]
-            #    socket_server_respond_request(conn, sqs_response[1])
-
-            #else:
-            #   print("Error the received JSON from SQS is invaild")
-            #    print("Waiting for the next request before sending data to the audio engine")
 
 #This can shutdown gracefully if you press control + c.
         except KeyboardInterrupt:

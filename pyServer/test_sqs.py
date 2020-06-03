@@ -9,6 +9,7 @@ import time
 import json
 from os import path
 from receivePacket import mock_SQS_queue 
+from receivePacket import mock_registration
 from receivePacket import verify_data
 
 def test_sqs_with_vaild_json():
@@ -140,3 +141,11 @@ def test_sqs_with_filename_special_characters():
     json_data = json.dumps(data_6)
     response = mock_SQS_queue(json_data)
     assert response[4] == False
+
+
+def test_device_registration():
+    data = {"device":"device-1", "queue" : "11111111-1111-1111-1111-111111111111"}
+    device = {"device":"device-1", "queue" : "11111111-1111-1111-1111-111111111111"}
+    json_data = json.dumps(data)
+    response = mock_registration(json_data, device)
+    assert response == "11111111-1111-1111-1111-111111111111"

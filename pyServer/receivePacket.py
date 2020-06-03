@@ -3,7 +3,7 @@ import json
 import sys
 
 
-def sqs_register_device():
+def sqs_register_device(): # pragma: no cover
     sqs = boto3.resource('sqs')
     sqsClient = boto3.client('sqs')
     queue = sqs.get_queue_by_name(QueueName='TutorialTestQueue')
@@ -11,7 +11,7 @@ def sqs_register_device():
     print('')
     return queue
 
-def listen_for_registration(queue):
+def listen_for_registration(queue, device_data): # pragma: no cover
     waiting_for_SQS = 1
     queue_id = None
     try:
@@ -20,17 +20,35 @@ def listen_for_registration(queue):
             for message in queue.receive_messages(MaxNumberOfMessages=maxQueueMessages):
                 messageBody = json.loads(message.body)
                 message_to_engine = messageBody
-                #actualMessages.append(messageBody)
                 print(messageBody)
                 queue_id = messageBody["queue"]
                 message.delete()
-                waiting_for_SQS = 0
+                if device_data["device"] is messageBody["queue"]:
+                    waiting_for_SQS = 0
 
         return queue_id
     except KeyError as error:
         print("Error the field for the queue is invaild")
         queue.purge()
-        return (fileName, message_to_engine, play_option, volume_option, data_is_vaild)
+        return None
+    except KeyboardInterrupt:
+        sys.exit()
+
+def mock_registration(string_data, device_data):
+    waiting_for_SQS = 1
+    queue_id = None
+    try:
+        messageBody = json.loads(string_data)
+        message_to_engine = messageBody
+        queue_id = messageBody["queue"]
+        if device_data["device"] is messageBody["queue"]:
+            waiting_for_SQS = 0
+
+        return queue_id
+    except KeyError as error:
+        print("Error the field for the queue is invaild")
+        queue.purge()
+        return None
     except KeyboardInterrupt:
         sys.exit()
 
@@ -43,7 +61,7 @@ def listen_for_registration(queue):
 #Description: This method initializes the SQS queue used for receiving messages from an AWS SNS topic. By creating this we can receive messages from our cloud service on to the raspberry pi
 maxQueueMessages = 10
 
-def sqs_init(queue_id):
+def sqs_init(queue_id):  # pragma: no cover
     sqs = boto3.resource('sqs')
     sqsClient = boto3.client('sqs')
     print(queue_id)
@@ -146,7 +164,7 @@ def mock_SQS_queue(string_data):
 #
 #Description: This method is the key point of communication between the raspberry pi and the AWS cloud. We wait on the SQS queue to be populated with messages that are then packaged as a JSON and begin to extract key elements from the JSON. We then verify the incoming message and return our tuple the waiting python server that made a call to this method.
 
-def await_SQS_response(queue):
+def await_SQS_response(queue): # pragma: no cover
     waiting_for_SQS = 1
     fileName = None
     play_option = None
@@ -177,13 +195,3 @@ def await_SQS_response(queue):
     except KeyboardInterrupt:
         sys.exit()
 
-
-#if __name__ == '__main__':
-#   while 1:
-#      try:
-#    queue = sqs_init()
-#    await_SQS_response(queue)
-#
-#This can shutdown gracefully if you press control + c.
-#        except KeyboardInterrupt:
-#            sys.exit()
