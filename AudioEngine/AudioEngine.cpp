@@ -547,6 +547,41 @@ void dspEngine::setEchoParameters(string systemID, FMOD_DSP_TYPE dspType, float 
 	}
 }
 
+void dspEngine::setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain)
+{
+	FMOD::DSP *eq;
+	if (checkDSPInSystem(systemID, dspType, &eq))
+	{
+		eq->setParameterFloat(0, lowgain);
+		eq->setParameterFloat(1, midgain);
+		eq->setParameterFloat(2, highgain);
+	}
+}
+
+void dspEngine::setFlangeParameters(string systemID, FMOD_DSP_TYPE dspType, float mix, float depth, float rate)
+{
+	FMOD::DSP *flange;
+	if (checkDSPInSystem(systemID, dspType, &flange))
+	{
+		flange->setParameterFloat(0, mix);
+		flange->setParameterFloat(1, depth);
+		flange->setParameterFloat(2, rate);
+	}
+}
+
+/*
+void dspEngine::setPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType, float pitch, float fftsize, float maxchannels)
+{
+	FMOD::DSP *pitchshift;
+	if (checkDSPInSystem(systemID, dspType, &pitchshift))
+	{
+		pitchshift->setParameterFloat(0, pitch);
+		pitchshift->setParameterFloat(1, fftsize);
+		pitchshift->setParameterFloat(3, maxchannels);
+	}
+}
+*/
+
 vector<float> dspEngine::getEchoParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
@@ -566,17 +601,6 @@ vector<float> dspEngine::getEchoParameters(string systemID, FMOD_DSP_TYPE dspTyp
 	return values;
 }
 
-void dspEngine::setEqParameters(string systemID, FMOD_DSP_TYPE dspType, float lowgain, float midgain, float highgain)
-{
-	FMOD::DSP *eq;
-	if (checkDSPInSystem(systemID, dspType, &eq))
-	{
-		eq->setParameterFloat(0, lowgain);
-		eq->setParameterFloat(1, midgain);
-		eq->setParameterFloat(2, highgain);
-	}
-}
-
 vector<float> dspEngine::getEqParameters(string systemID, FMOD_DSP_TYPE dspType)
 {
 	vector<float> values;
@@ -593,6 +617,44 @@ vector<float> dspEngine::getEqParameters(string systemID, FMOD_DSP_TYPE dspType)
 	}
 	return values;
 }
+
+vector<float> dspEngine::getFlangeParameters(string systemID, FMOD_DSP_TYPE dspType)
+{
+	vector<float> values;
+	float param0, param1, param2;
+	FMOD::DSP *flange;
+	if (checkDSPInSystem(systemID, dspType, &flange))
+	{
+		audioEngine::errorCheck(flange->getParameterFloat(0, &param0, 0, 0));
+		values.push_back(param0);
+		audioEngine::errorCheck(flange->getParameterFloat(1, &param1, 0, 0));
+		values.push_back(param1);
+		audioEngine::errorCheck(flange->getParameterFloat(2, &param2, 0, 0));
+		values.push_back(param2);
+	}
+	return values;
+}
+
+/*
+vector<float> dspEngine::getPitchShiftParameters(string systemID, FMOD_DSP_TYPE dspType)
+{
+	vector<float> values;
+	float param0, param1, param2, param3;
+	FMOD::DSP *pitchshift;
+	if (checkDSPInSystem(systemID, dspType, &pitchshift))
+	{
+		audioEngine::errorCheck(pitchshift->getParameterFloat(0, &param0, 0, 0));
+		values.push_back(param0);
+		audioEngine::errorCheck(pitchshift->getParameterFloat(1, &param1, 0, 0));
+		values.push_back(param1);
+		audioEngine::errorCheck(pitchshift->getParameterFloat(2, &param2, 0, 0));
+		values.push_back(param2);
+		audioEngine::errorCheck(pitchshift->getParameterFloat(3, &param3, 0, 0));
+		values.push_back(param3);	
+	}
+	return values;
+}
+*/
 
 bool dspEngine::checkDSPInSystem(string systemID, FMOD_DSP_TYPE dspType, FMOD::DSP** dspOutput)
 {

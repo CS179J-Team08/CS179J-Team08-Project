@@ -155,6 +155,35 @@ void packetParser::parseData(string packet)
 				}
 			}
 		}
+		else if (strcmp(*it, "flange") == 0)
+		{
+			if (it + 1 != packetData.end())
+			{
+				if (strcmp(*(it + 2), "apply") == 0)
+				{
+					if (strcmp(*(it + 4), "true") == 0)
+					{
+						request.flange.apply = true;
+					}
+					else if (strcmp(*(it + 4), "false") == 0)
+					{
+						request.flange.apply = false;
+					}
+				}
+				if (strcmp(*(it + 6), "mix") == 0)
+				{
+					request.flange.mix = stof(*(it + 8));
+				}
+				if (strcmp(*(it + 10), "depth") == 0)
+				{
+					request.flange.depth = stof(*(it + 12));
+				}
+				if (strcmp(*(it + 14), "rate") == 0)
+				{
+					request.flange.rate = stof(*(it + 16));
+				}
+			}
+		}
 	}
 	
 	for (auto it = request.usernames.begin(); it != request.usernames.end(); it++)
@@ -206,7 +235,17 @@ void packetParser::parseData(string packet)
 	printf("%f\n", request.eq.lowgain);
 	printf("%f\n", request.eq.midgain);
 	printf("%f\n", request.eq.highgain);
-	
+	printf("flange: \n");
+	if (request.flange.apply)
+	{
+		printf("apply == true\n");
+	}
+	{
+		printf("apply == false\n");
+	}
+	printf("%f\n", request.flange.depth);
+	printf("%f\n", request.flange.mix);
+	printf("%f\n", request.flange.rate);
 }
 
 void packetParser::applyRequest()
@@ -274,6 +313,16 @@ void packetParser::applyRequest()
 		else
 		{
 			d.removeDSPEffect("mainSystem", FMOD_DSP_TYPE_THREE_EQ);
+		}
+
+		if (request.flange.apply == true)
+		{
+			d.addDSPEffect("mainSystem", FMOD_DSP_TYPE_FLANGE);
+			d.setFlangeParameters("mainSystem", FMOD_DSP_TYPE_FLANGE, request.flange.mix, request.flange.depth, request.flange.rate);
+		}
+		else
+		{
+			d.removeDSPEffect("mainSystem", FMOD_DSP_TYPE_FLANGE);
 		}
 	}
 }

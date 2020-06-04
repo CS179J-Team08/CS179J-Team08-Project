@@ -23,6 +23,14 @@ struct eqEffect
 	float highgain;
 };
 
+struct flangeEffect
+{
+	bool apply;
+	float mix;
+	float depth;
+	float rate;
+};
+
 struct dataPacket
 {
 	vector<char*> usernames;
@@ -32,6 +40,7 @@ struct dataPacket
 	float volume;
 	echoEffect echo;
 	eqEffect eq;
+	flangeEffect flange;
 };
 
 class packetParser : public audioEngine
