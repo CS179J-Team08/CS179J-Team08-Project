@@ -58,3 +58,4 @@ build:
 
 coverage:
 	g++ --coverage -std=c++11 -pthread ${FLAGS} -o ${NAME} ${SOURCE_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
+	g++ --coverage -std=c++11 -pthread ${FLAGS} -o ${PARSE} ${PACKET_FILES} -Wl,-rpath=\$$ORIGIN/$(dir ${LOWLEVEL_LIB}) ${LOWLEVEL_LIB} ${INCLUDE_DIRS}
