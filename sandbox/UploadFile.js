@@ -37,6 +37,13 @@ let packet = {
       mix: 0.0,
       depth: 0.01,
       rate: 0.0
+    },
+    pitchshift: {
+      apply: false,
+      pitch: 1.0,
+      fftsize: 1024,
+      //overlap (REMOVED FMOD PARAMETER)
+      maxchannels: 0
     }
   }
 };
@@ -69,7 +76,11 @@ class UploadFile extends Component {
           flangeapply: "false",
           flangemix: "0.0",
           flangedepth: "0.01",
-          flangerate: "0.0"
+          flangerate: "0.0",
+          pitchapply: "false",
+          pitchpitch: "1.0",
+          pitchfftsize: "1024",
+          pitchmaxchannels: "0.0"
         };
 
         this.updatePlayState = this.updatePlayState.bind(this);
@@ -88,6 +99,10 @@ class UploadFile extends Component {
         this.updateFlangeMix = this.updateFlangeMix.bind(this);
         this.updateFlangeDepth = this.updateFlangeDepth.bind(this);
         this.updateFlangeRate = this.updateFlangeRate.bind(this);
+        this.applyPitch = this.applyPitch.bind(this);
+        this.updatePitchPitch = this.updatePitchPitch.bind(this);
+        this.updatePitchFFTsize = this.updatePitchFFTsize.bind(this);
+        this.updatePitchMaxchannels = this.updatePitchMaxchannels.bind(this);
       }
 
       uploadAudioFile = async (evt) => {
@@ -158,6 +173,10 @@ class UploadFile extends Component {
         packet.parameters.flange.mix = this.state.flangemix;
         packet.parameters.flange.depth = this.state.flangedepth;
         packet.parameters.flange.rate = this.state.flangerate;
+        packet.parameters.pitchshift.apply = this.state.pitchapply;
+        packet.parameters.pitchshift.pitch = this.state.pitchpitch;
+        packet.parameters.pitchshift.fftsize = this.state.pitchfftsize;
+        packet.parameters.pitchshift.maxchannels = this.state.pitchmaxchannels;
         // debugging purposes
         console.log(packet);
 
@@ -277,6 +296,25 @@ class UploadFile extends Component {
         this.setState({ flangerate: event.target.value });
       }
 
+      applyPitch(event) {
+        if(event.target.checked) {
+          this.setState({ pitchapply: "true" });
+        } else {
+          this.setState({ pitchapply: "false" });
+        }
+      }
+
+      updatePitchPitch(event) {
+        this.setState({ pitchpitch: event.target.value });
+      }
+
+      updatePitchFFTsize(event) {
+        this.setState({ pitchfftsize: event.target.value });
+      }
+
+      updatePitchMaxchannels(event) {
+        this.setState({ pitchmaxchannels: event.target.value });
+      }
 
       render() {
         return (
@@ -374,6 +412,22 @@ class UploadFile extends Component {
                 <label>
                   Rate:
                   <input type="number" step="0.1" onChange={this.updateFlangeRate} />
+                </label>
+              </div>
+              <div>
+                <h5>Pitch-shift:</h5>
+                <input type="checkbox" onChange={this.applyPitch} />
+                <label>
+                  Pitch:
+                  <input type="number" step="0.1" onChange={this.updatePitchPitch} />
+                </label>
+                <label>
+                  FFT Size:
+                  <input type="number" step="256" onChange={this.updatePitchFFTsize} />
+                </label>
+                <label>
+                  Channels:
+                  <input type="number" step="1" onChange={this.updatePitchMaxchannels} />
                 </label>
               </div>
               <p></p>
